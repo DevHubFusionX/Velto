@@ -182,7 +182,7 @@ const Footer = () => {
                             © 2024 InvestPro. All rights reserved.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-sm text-gray-500">
-                            <span>Made with ❤️ for investors</span>
+                            <span>Made by Frank for investors</span>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-[#a3e635] rounded-full animate-pulse"></div>
                                 <span>All systems operational</span>

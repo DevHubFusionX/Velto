@@ -38,7 +38,7 @@ const CTA = () => {
                     </div>
 
                     {/* Content */}
-                    <div className="relative p-12 md:p-20 text-center">
+                    <div className="relative px-6 py-10 sm:px-10 sm:py-14 md:p-20 text-center">
                         {/* Badge */}
                         <div className="inline-block mb-6">
                             <span className="px-4 py-1.5 rounded-full bg-[#0a1f0a]/30 backdrop-blur-sm text-white text-xs font-semibold tracking-wide uppercase border border-white/20">
@@ -47,43 +47,43 @@ const CTA = () => {
                         </div>
 
                         {/* Heading */}
-                        <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-[#0a1f0a] mb-6 tracking-tight">
+                        <h2 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-[#0a1f0a] mb-6 tracking-tight leading-tight">
                             Start Growing Your
                             <br />
                             Wealth Today
                         </h2>
 
                         {/* Subheading */}
-                        <p className="text-lg md:text-xl text-[#0a1f0a]/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+                        <p className="text-base sm:text-lg md:text-xl text-[#0a1f0a]/80 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed">
                             Join thousands of investors who trust us with their financial future. Get started in under 2 minutes with as little as $10.
                         </p>
 
                         {/* CTA Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                            <button className="group relative px-8 py-4 rounded-full bg-[#0a1f0a] text-white font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(10,31,10,0.3)] overflow-hidden">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center mb-8">
+                            <button className="group relative w-full sm:w-auto px-7 sm:px-8 py-3 sm:py-4 rounded-full bg-[#0a1f0a] text-white font-semibold text-base sm:text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(10,31,10,0.3)] overflow-hidden">
                                 <span className="relative z-10">Open an Account</span>
                                 <div className="absolute inset-0 bg-gradient-to-r from-[#1a2e1a] to-[#0a1f0a] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             </button>
-                            <button className="px-8 py-4 rounded-full bg-white/20 backdrop-blur-sm text-[#0a1f0a] font-semibold text-lg hover:bg-white/30 transition-all duration-300 border-2 border-[#0a1f0a]/20 hover:border-[#0a1f0a]/40">
+                            <button className="w-full sm:w-auto px-7 sm:px-8 py-3 sm:py-4 rounded-full bg-white/20 backdrop-blur-sm text-[#0a1f0a] font-semibold text-base sm:text-lg hover:bg-white/30 transition-all duration-300 border-2 border-[#0a1f0a]/20 hover:border-[#0a1f0a]/40">
                                 Schedule a Demo
                             </button>
                         </div>
 
                         {/* Trust Indicators */}
-                        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#0a1f0a]/70">
-                            <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-xs sm:text-sm text-[#0a1f0a]/70">
+                            <div className="flex items-center justify-center gap-2">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
                                 <span className="font-medium">No credit card required</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-center gap-2">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
                                 <span className="font-medium">Cancel anytime</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-center gap-2">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
