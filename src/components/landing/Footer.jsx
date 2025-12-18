@@ -50,27 +50,30 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
                 {/* Top Section: Newsletter */}
                 <div className="mb-16 pb-16 border-b border-white/10">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        <div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                        <div className="text-center lg:text-left">
                             <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
                                 Stay Updated
                             </h3>
-                            <p className="text-gray-400 text-lg">
+                            <p className="text-gray-400 text-base md:text-lg max-w-xl mx-auto lg:mx-0">
                                 Get the latest investment insights, market trends, and platform updates delivered to your inbox.
                             </p>
                         </div>
-                        <form onSubmit={handleNewsletterSubmit} className="flex gap-3">
+                        <form
+                            onSubmit={handleNewsletterSubmit}
+                            className="flex flex-col sm:flex-row gap-3 w-full"
+                        >
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
-                                className="flex-1 px-6 py-4 rounded-full bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#a3e635]/50 transition-colors backdrop-blur-sm"
+                                className="flex-1 px-5 md:px-6 py-3 md:py-4 rounded-full bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-[#a3e635]/50 transition-colors backdrop-blur-sm w-full"
                                 required
                             />
                             <button
                                 type="submit"
-                                className="px-8 py-4 rounded-full bg-gradient-to-r from-[#a3e635] to-[#84cc16] text-[#0a1f0a] font-semibold hover:scale-105 transition-transform shadow-[0_0_20px_rgba(163,230,53,0.3)]"
+                                className="px-6 md:px-8 py-3 md:py-4 rounded-full bg-gradient-to-r from-[#a3e635] to-[#84cc16] text-[#0a1f0a] font-semibold hover:scale-105 transition-transform shadow-[0_0_20px_rgba(163,230,53,0.3)] w-full sm:w-auto"
                             >
                                 Subscribe
                             </button>
@@ -79,9 +82,9 @@ const Footer = () => {
                 </div>
 
                 {/* Main Footer Content */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 mb-16">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 md:gap-10 mb-16">
                     {/* Brand Column */}
-                    <div className="col-span-2">
+                    <div className="col-span-1 sm:col-span-2">
                         <div className="mb-6">
                             <div className="text-2xl font-bold text-white mb-2">InvestPro</div>
                             <p className="text-gray-400 text-sm">
@@ -89,7 +92,7 @@ const Footer = () => {
                             </p>
                         </div>
                         {/* Social Links */}
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 flex-wrap">
                             {socialLinks.map((social) => (
                                 <a
                                     key={social.name}
@@ -174,11 +177,11 @@ const Footer = () => {
 
                 {/* Bottom Section */}
                 <div className="pt-8 border-t border-white/10">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
                         <p className="text-gray-500 text-sm">
                             © 2024 InvestPro. All rights reserved.
                         </p>
-                        <div className="flex items-center gap-6 text-sm text-gray-500">
+                        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-sm text-gray-500">
                             <span>Made with ❤️ for investors</span>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-[#a3e635] rounded-full animate-pulse"></div>
