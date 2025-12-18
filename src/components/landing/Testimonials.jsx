@@ -23,8 +23,8 @@ const StarRating = ({ rating }) => {
 // Review card component
 const ReviewCard = ({ review }) => {
     return (
-        <div className="flex-shrink-0 w-[400px] mx-4 group">
-            <div className="relative p-8 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/10 hover:border-[#a3e635]/30 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(163,230,53,0.2)] h-full">
+        <div className="flex-shrink-0 min-w-[260px] xs:min-w-[280px] sm:w-[320px] md:w-[380px] lg:w-[400px] mx-3 sm:mx-4 group">
+            <div className="relative p-6 sm:p-7 md:p-8 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/10 hover:border-[#a3e635]/30 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(163,230,53,0.2)] h-full">
                 {/* Decorative gradient */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#a3e635]/20 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
@@ -79,25 +79,25 @@ const Testimonials = () => {
 
             <div className="relative z-10">
                 {/* Section Header */}
-                <div className="text-center mb-20 px-6">
+                <div className="text-center mb-14 md:mb-20 px-6">
                     <div className="inline-block mb-4">
                         <span className="px-4 py-1.5 rounded-full border border-[#a3e635]/20 bg-[#a3e635]/5 text-[#a3e635] text-xs font-semibold tracking-wide uppercase">
                             Testimonials
                         </span>
                     </div>
-                    <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+                    <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 md:mb-6 tracking-tight leading-tight">
                         Trusted by Thousands
                     </h2>
-                    <p className="text-gray-400 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
+                    <p className="text-gray-400 max-w-2xl mx-auto text-base sm:text-lg md:text-xl leading-relaxed">
                         See what our investors have to say about their experience.
                     </p>
                 </div>
 
                 {/* Scrolling Ticker */}
-                <div className="relative mb-20">
+                <div className="relative mb-16 md:mb-20 px-4 sm:px-6">
                     {/* Gradient overlays for fade effect */}
-                    <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#0a1f0a] to-transparent z-10 pointer-events-none"></div>
-                    <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#0a1f0a] to-transparent z-10 pointer-events-none"></div>
+                    <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 bg-gradient-to-r from-[#0a1f0a] to-transparent z-10"></div>
+                    <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 bg-gradient-to-l from-[#0a1f0a] to-transparent z-10"></div>
 
                     {/* Scrolling container */}
                     <div className="overflow-hidden">
