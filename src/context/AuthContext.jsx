@@ -7,16 +7,28 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const checkAuth = async () => {
     const token = localStorage.getItem('token');
-    if (token) {
-      authService.getCurrentUser()
-        .then(setUser)
-        .catch(() => localStorage.removeItem('token'))
-        .finally(() => setLoading(false));
-    } else {
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
+    } catch (error) {
+      console.error('Session expired');
+      localStorage.removeItem('token');
+      setUser(null);
+    } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    checkAuth();
   }, []);
 
   const login = async (email, password) => {
@@ -31,13 +43,17 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const forgotPassword = async (email) => {
+    return await authService.forgotPassword(email);
+  };
+
   const logout = () => {
     authService.logout();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, register, logout, loading, checkAuth, forgotPassword }}>
       {children}
     </AuthContext.Provider>
   );

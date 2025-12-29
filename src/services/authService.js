@@ -17,6 +17,26 @@ export const authService = {
     return response.data;
   },
 
+  verifyEmail: async (email, code) => {
+    const response = await api.post('/auth/verify-email', { email, code });
+    return response.data;
+  },
+
+  resendVerification: async (email) => {
+    const response = await api.post('/auth/resend-verification', { email });
+    return response.data;
+  },
+
+  forgotPassword: async (email) => {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+
+  resetPassword: async (token, newPassword) => {
+    const response = await api.post('/auth/reset-password', { token, newPassword });
+    return response.data;
+  },
+
   logout: () => {
     localStorage.removeItem('token');
     window.location.href = '/';

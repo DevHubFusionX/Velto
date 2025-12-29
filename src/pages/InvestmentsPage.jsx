@@ -1,32 +1,93 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { theme } from '../theme';
-import Sidebar from '../components/dashboard/Sidebar';
-import { TrendingUp, Wallet, DollarSign, Clock, Plus, ArrowUpRight, Menu, Calendar, Target } from 'lucide-react';
-import { useCurrency } from '../context';
+import DashboardLayout from '../components/layout/DashboardLayout';
+import { TrendingUp, Wallet, DollarSign, Clock, Plus, ArrowUpRight, Calendar, Target, Award, CheckCircle2, X, History, LogOut } from 'lucide-react';
+import { useCurrency, useAuth, useToast, useSearch } from '../context';
 import { investmentService } from '../services';
 import { formatCurrency } from '../utils';
+import InvestModal from '../components/InvestModal';
+import WithdrawInvestmentModal from '../components/WithdrawInvestmentModal';
 
 const InvestmentsPage = () => {
+    const navigate = useNavigate();
     const { currency, setCurrency } = useCurrency();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { searchQuery } = useSearch();
+    const { user } = useAuth();
+    const { addToast } = useToast();
+    const [activeTab, setActiveTab] = useState('investments'); // 'investments' or 'history'
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [investments, setInvestments] = useState([]);
+    const [payoutHistory, setPayoutHistory] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showInvestModal, setShowInvestModal] = useState(false);
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+    const [selectedInvestment, setSelectedInvestment] = useState(null);
 
     useEffect(() => {
         fetchInvestments();
-    }, []);
+        if (activeTab === 'history') {
+            fetchPayoutHistory();
+        }
+    }, [activeTab]);
 
     const fetchInvestments = async () => {
         try {
             setLoading(true);
-            const data = await investmentService.getAll();
-            setInvestments(data);
+            const response = await investmentService.getMyInvestments();
+            if (response.success) {
+                const formatted = response.data.map(inv => {
+                    const planDuration = inv.plan?.durationDays || 30; // Fallback
+                    const planName = inv.plan?.name || 'Archived Plan';
+
+                    const totalExpected = inv.dailyPayoutAmount * planDuration; // Approx total payout
+                    const progress = totalExpected > 0
+                        ? (Math.min(100, Math.round((inv.totalPayoutReceived / totalExpected) * 100)) || 0)
+                        : 0;
+
+                    return {
+                        id: inv._id,
+                        planName: planName,
+                        amount: inv.amount,
+                        dailyPayout: inv.dailyPayoutAmount,
+                        totalReceived: inv.totalPayoutReceived,
+                        nextPayout: new Date(inv.nextPayoutDate).toLocaleDateString(),
+                        status: inv.status,
+                        startDate: new Date(inv.startDate).toLocaleDateString(),
+                        endDate: new Date(inv.endDate).toLocaleDateString(),
+                        progress: progress,
+                        color: '#a3e635', // default accent
+                        duration: `${planDuration} Days`
+                    };
+                });
+                setInvestments(formatted);
+            }
         } catch (error) {
             console.error('Failed to fetch investments:', error);
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchPayoutHistory = async () => {
+        try {
+            const response = await investmentService.getPayoutHistory();
+            if (response.success) {
+                setPayoutHistory(response.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch payout history:', error);
+        }
+    };
+
+    const handleWithdraw = (investment) => {
+        setSelectedInvestment(investment);
+        setShowWithdrawModal(true);
+    };
+
+    const handleWithdrawSuccess = () => {
+        fetchInvestments();
+        setSelectedInvestment(null);
     };
 
     const filters = [
@@ -35,282 +96,171 @@ const InvestmentsPage = () => {
         { id: 'completed', label: 'Completed' },
     ];
 
-    const filteredInvestments = selectedFilter === 'all'
-        ? investments
-        : investments.filter(inv => inv.status.toLowerCase() === selectedFilter);
+    const filteredInvestments = investments.filter(inv => {
+        const matchesStatus = selectedFilter === 'all' || inv.status.toLowerCase() === selectedFilter.toLowerCase();
+        const matchesSearch = !searchQuery || inv.planName.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesStatus && matchesSearch;
+    });
 
     const calculateTotals = () => {
-        const invested = investments.reduce((sum, inv) => sum + (inv.amount || 0), 0);
-        const current = investments.reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
-        const returns = current - invested;
-        const percentage = invested > 0 ? ((returns / invested) * 100).toFixed(1) : 0;
-        
+        const invested = investments.reduce((sum, inv) => sum + inv.amount, 0);
+        const received = investments.reduce((sum, inv) => sum + inv.totalReceived, 0);
+
         return {
             totalInvested: formatCurrency(invested, currency),
-            totalCurrentValue: formatCurrency(current, currency),
-            totalReturns: formatCurrency(returns, currency),
-            totalReturnPercentage: `+${percentage}%`
+            totalReceived: formatCurrency(received, currency),
+            activeCount: investments.filter(i => i.status === 'active').length
         };
     };
 
-    const { totalInvested, totalCurrentValue, totalReturns, totalReturnPercentage } = calculateTotals();
+    const { totalInvested, totalReceived, activeCount } = calculateTotals();
+
+    const handleInvestmentSuccess = () => {
+        addToast('Investment successful!', 'success');
+        fetchInvestments();
+    };
 
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.colors.dark }}>
-                <div className="text-white text-xl">Loading investments...</div>
+                <Loader2 className="animate-spin text-[#a3e635] w-10 h-10" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex relative" style={{ backgroundColor: theme.colors.dark }}>
-            {/* Background Gradients */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-0 right-1/4 w-[500px] h-[500px] rounded-full bg-[#a3e635] blur-[150px] opacity-5"></div>
-                <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] rounded-full bg-[#1a2e1a] blur-[120px] opacity-20"></div>
+        <DashboardLayout activeItem="investments">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-4">
+                <div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-white">My Investments</h1>
+                    <p className="text-sm text-gray-400">Track your portfolio performance</p>
+                </div>
+                <button
+                    onClick={() => setShowInvestModal(true)}
+                    className="flex items-center gap-2 px-6 py-3 bg-[#a3e635] text-[#0a1f0a] font-bold rounded-xl hover:bg-[#8cc629] transition-all"
+                >
+                    <Plus size={20} />
+                    New Investment
+                </button>
             </div>
 
-            <Sidebar activeItem="portfolio" isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-
-            {/* Main Content */}
-            <main className="flex-1 p-4 md:p-8 overflow-auto relative z-10 lg:ml-72">
-                <div className="max-w-7xl mx-auto">
-                    {/* Header */}
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-4">
-                        <div className="flex items-center gap-3 w-full md:w-auto">
-                            <button
-                                onClick={() => setIsSidebarOpen(true)}
-                                className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/10 hover:border-[#a3e635]/50 transition-all"
-                            >
-                                <Menu className="w-5 h-5 text-gray-400" />
-                            </button>
-                            <div>
-                                <h1 className="text-2xl md:text-3xl font-bold text-white">My Investments</h1>
-                                <p className="text-sm text-gray-400">Track your active and completed investments</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2 p-1 rounded-xl bg-white/5 border border-white/10">
-                                <button
-                                    onClick={() => setCurrency('NGN')}
-                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${currency === 'NGN' ? 'bg-[#a3e635] text-[#0a1f0a]' : 'text-gray-400'
-                                        }`}
-                                >
-                                    NGN
-                                </button>
-                                <button
-                                    onClick={() => setCurrency('USD')}
-                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${currency === 'USD' ? 'bg-[#a3e635] text-[#0a1f0a]' : 'text-gray-400'
-                                        }`}
-                                >
-                                    USD
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                        <div className="group p-6 rounded-2xl backdrop-blur-md border hover:scale-[1.02] transition-all duration-300 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full blur-2xl"></div>
-                            <div className="relative flex items-start justify-between">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                                            <Wallet className="w-5 h-5 text-gray-400" />
-                                        </div>
-                                    </div>
-                                    <span className="text-gray-400 text-xs font-medium">Total Invested</span>
-                                    <div className="text-3xl font-bold text-white mt-1">{totalInvested}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="group p-6 rounded-2xl backdrop-blur-md border hover:scale-[1.02] transition-all duration-300 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/5 rounded-full blur-2xl"></div>
-                            <div className="relative flex items-start justify-between">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                            <Target className="w-5 h-5 text-blue-400" />
-                                        </div>
-                                    </div>
-                                    <span className="text-gray-400 text-xs font-medium">Current Value</span>
-                                    <div className="text-3xl font-bold text-white mt-1">{totalCurrentValue}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="group p-6 rounded-2xl backdrop-blur-md border hover:scale-[1.02] transition-all duration-300 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(163, 230, 53, 0.15), rgba(132, 204, 22, 0.05))', borderColor: 'rgba(163, 230, 53, 0.3)' }}>
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-[#a3e635]/10 rounded-full blur-2xl"></div>
-                            <div className="relative flex items-start justify-between">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-[#a3e635]/20 flex items-center justify-center">
-                                            <DollarSign className="w-5 h-5 text-[#a3e635]" />
-                                        </div>
-                                    </div>
-                                    <span className="text-gray-400 text-xs font-medium">Total Returns</span>
-                                    <div className="text-3xl font-bold mt-1" style={{ color: theme.colors.primary }}>{totalReturns}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="group p-6 rounded-2xl backdrop-blur-md border hover:scale-[1.02] transition-all duration-300 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(163, 230, 53, 0.15), rgba(132, 204, 22, 0.05))', borderColor: 'rgba(163, 230, 53, 0.3)' }}>
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-[#a3e635]/10 rounded-full blur-2xl"></div>
-                            <div className="relative flex items-start justify-between">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-[#a3e635]/20 flex items-center justify-center">
-                                            <TrendingUp className="w-5 h-5 text-[#a3e635]" />
-                                        </div>
-                                    </div>
-                                    <span className="text-gray-400 text-xs font-medium">ROI</span>
-                                    <div className="text-3xl font-bold mt-1" style={{ color: theme.colors.primary }}>{totalReturnPercentage}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Filter Tabs */}
-                    <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
-                        {filters.map((filter) => (
-                            <button
-                                key={filter.id}
-                                onClick={() => setSelectedFilter(filter.id)}
-                                className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${selectedFilter === filter.id
-                                        ? 'bg-[#a3e635] text-[#0a1f0a] shadow-[0_0_20px_rgba(163,230,53,0.3)]'
-                                        : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'
-                                    }`}
-                            >
-                                {filter.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Investments List */}
-                    <div className="space-y-4">
-                        {filteredInvestments.map((investment) => (
-                            <div
-                                key={investment.id}
-                                className="group rounded-2xl backdrop-blur-md border hover:border-white/20 transition-all duration-300 overflow-hidden relative"
-                                style={{ background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03))', borderColor: 'rgba(255, 255, 255, 0.1)' }}
-                            >
-                                <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] opacity-0 group-hover:opacity-20 transition-opacity" style={{ backgroundColor: investment.color }}></div>
-
-                                <div className="relative grid md:grid-cols-[1fr_auto] gap-6 p-6">
-                                    {/* Left Section */}
-                                    <div className="space-y-5">
-                                        {/* Header */}
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-16 h-16 rounded-2xl flex items-center justify-center relative" style={{ background: `linear-gradient(135deg, ${investment.color}30, ${investment.color}10)` }}>
-                                                    <TrendingUp className="w-8 h-8" style={{ color: investment.color }} />
-                                                    <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: investment.color }}>
-                                                        <span className="text-[10px] font-bold text-[#0a1f0a]">{investment.returns}</span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-2xl font-bold text-white mb-1">{investment.product}</h3>
-                                                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                                                        <Clock className="w-4 h-4" />
-                                                        <span>{investment.duration}</span>
-                                                        <span className="w-1 h-1 rounded-full bg-gray-600"></span>
-                                                        <span className={`font-semibold ${investment.status === 'Active' ? 'text-[#a3e635]' : 'text-blue-400'}`}>{investment.status}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Stats Grid */}
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Wallet className="w-4 h-4 text-gray-400" />
-                                                    <span className="text-xs text-gray-400">Invested</span>
-                                                </div>
-                                                <div className="text-xl font-bold text-white">
-                                                    {formatCurrency(investment.amount || 0, currency)}
-                                                </div>
-                                            </div>
-                                            <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Target className="w-4 h-4 text-gray-400" />
-                                                    <span className="text-xs text-gray-400">Current</span>
-                                                </div>
-                                                <div className="text-xl font-bold text-white">
-                                                    {formatCurrency(investment.currentValue || 0, currency)}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Progress */}
-                                        <div>
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs text-gray-400">Investment Progress</span>
-                                                <span className="text-xs font-bold" style={{ color: investment.color }}>{investment.progress}%</span>
-                                            </div>
-                                            <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
-                                                <div
-                                                    className="absolute h-full rounded-full transition-all duration-500"
-                                                    style={{
-                                                        width: `${investment.progress}%`,
-                                                        background: `linear-gradient(90deg, ${investment.color}, ${investment.color}80)`
-                                                    }}
-                                                ></div>
-                                            </div>
-                                            <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                                                <Calendar className="w-3 h-3" />
-                                                <span>{investment.startDate} → {investment.maturityDate}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Right Section */}
-                                    <div className="flex flex-col justify-between items-end gap-4 md:min-w-[200px]">
-                                        <div className="text-right">
-                                            <div className="text-xs text-gray-400 mb-1">Total Returns</div>
-                                            <div className="text-3xl font-bold mb-1" style={{ color: investment.color }}>
-                                                {formatCurrency((investment.currentValue || 0) - (investment.amount || 0), currency)}
-                                            </div>
-                                            <div className="flex items-center justify-end gap-1">
-                                                <TrendingUp className="w-4 h-4" style={{ color: investment.color }} />
-                                                <span className="text-sm font-bold" style={{ color: investment.color }}>{investment.returns}</span>
-                                            </div>
-                                        </div>
-
-                                        {investment.status === 'Active' && (
-                                            <div className="flex flex-col gap-2 w-full">
-                                                <button className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105 flex items-center justify-center gap-2" style={{ backgroundColor: investment.color, color: '#0a1f0a' }}>
-                                                    <Plus className="w-4 h-4" />
-                                                    Add More
-                                                </button>
-                                                <button className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all border border-white/10 flex items-center justify-center gap-2">
-                                                    <ArrowUpRight className="w-4 h-4" />
-                                                    Withdraw
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Empty State */}
-                    {filteredInvestments.length === 0 && (
-                        <div className="text-center py-20">
-                            <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                                <svg className="w-10 h-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                </svg>
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-2">No investments found</h3>
-                            <p className="text-gray-400">Try changing your filter or start a new investment</p>
-                        </div>
-                    )}
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+                    <span className="text-gray-400 text-xs font-medium">Total Invested</span>
+                    <div className="text-3xl font-bold text-white mt-1">{totalInvested}</div>
                 </div>
-            </main>
-        </div>
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+                    <span className="text-gray-400 text-xs font-medium">Total Returns Received</span>
+                    <div className="text-3xl font-bold text-[#a3e635] mt-1">{totalReceived}</div>
+                </div>
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+                    <span className="text-gray-400 text-xs font-medium">Active Portfolios</span>
+                    <div className="text-3xl font-bold text-white mt-1">{activeCount}</div>
+                </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6 p-1 bg-white/5 rounded-xl border border-white/10 w-fit">
+                <button
+                    onClick={() => setActiveTab('investments')}
+                    className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'investments'
+                        ? 'bg-[#a3e635] text-[#0a1f0a]'
+                        : 'text-gray-400 hover:text-white'
+                        }`}
+                >
+                    <div className="flex items-center gap-2">
+                        <TrendingUp size={16} />
+                        Active Investments
+                    </div>
+                </button>
+                <button
+                    onClick={() => setActiveTab('history')}
+                    className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'history'
+                        ? 'bg-[#a3e635] text-[#0a1f0a]'
+                        : 'text-gray-400 hover:text-white'
+                        }`}
+                >
+                    <div className="flex items-center gap-2">
+                        <History size={16} />
+                        Payout History
+                    </div>
+                </button>
+            </div>
+
+            {/* Investments List */}
+            <div className="space-y-4">
+                {filteredInvestments.map((inv) => (
+                    <div
+                        key={inv.id}
+                        className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-[#a3e635]/50 transition-all relative overflow-hidden group"
+                    >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                            <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-[#a3e635]/10 flex items-center justify-center text-[#a3e635]">
+                                    <TrendingUp size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-white">{inv.planName}</h3>
+                                    <div className="flex items-center gap-3 text-sm text-gray-400 mt-1">
+                                        <span className="bg-white/10 px-2 py-0.5 rounded text-xs text-white">{inv.status}</span>
+                                        <span>Ends: {inv.endDate}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-1">Invested</p>
+                                    <p className="font-bold text-white">{formatCurrency(inv.amount, currency)}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-1">Daily Return</p>
+                                    <p className="font-bold text-[#a3e635]">{formatCurrency(inv.dailyPayout, currency)}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-1">Total Received</p>
+                                    <p className="font-bold text-white">{formatCurrency(inv.totalReceived, currency)}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 mb-1">Next Payout</p>
+                                    <p className="font-bold text-white">{inv.nextPayout}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="mt-6">
+                            <div className="flex justify-between text-xs text-gray-500 mb-2">
+                                <span>Progress</span>
+                                <span>{inv.progress}%</span>
+                            </div>
+                            <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                <div className="h-full bg-[#a3e635] transition-all duration-1000" style={{ width: `${inv.progress}%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {filteredInvestments.length === 0 && (
+                    <div className="text-center py-20 text-gray-500">
+                        No investments found. Start investing to see returns!
+                    </div>
+                )}
+            </div>
+
+            {showInvestModal && (
+                <InvestModal
+                    onClose={() => setShowInvestModal(false)}
+                    onSuccess={handleInvestmentSuccess}
+                />
+            )}
+        </DashboardLayout>
     );
 };
+
+// Simple loader placeholder if not imported
+const Loader2 = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v4m0 4v4m-4-4h4m4-4h4" /></svg>;
 
 export default InvestmentsPage;

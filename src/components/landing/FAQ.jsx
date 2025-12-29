@@ -135,7 +135,8 @@ const FAQ = () => {
             </div>
 
             {/* CSS Animation */}
-            <style jsx>{`
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @keyframes float {
                     0%, 100% { transform: translateY(0px) rotate(0deg); }
                     50% { transform: translateY(-20px) rotate(10deg); }
@@ -143,7 +144,7 @@ const FAQ = () => {
                 .animate-float {
                     animation: float 6s ease-in-out infinite;
                 }
-            `}</style>
+            ` }} />
         </section>
     );
 };

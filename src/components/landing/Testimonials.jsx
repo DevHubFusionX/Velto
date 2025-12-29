@@ -128,7 +128,8 @@ const Testimonials = () => {
             </div>
 
             {/* CSS for infinite scroll animation */}
-            <style jsx>{`
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @keyframes scroll {
                     0% {
                         transform: translateX(0);
@@ -143,7 +144,7 @@ const Testimonials = () => {
                 .pause-animation:hover {
                     animation-play-state: paused;
                 }
-            `}</style>
+            ` }} />
         </section>
     );
 };

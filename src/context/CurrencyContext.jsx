@@ -6,10 +6,11 @@ export const CurrencyProvider = ({ children }) => {
   const [currency, setCurrency] = useState('NGN');
 
   const formatAmount = (amount) => {
+    const val = amount || 0;
     if (currency === 'NGN') {
-      return `₦${amount.toLocaleString()}`;
+      return `₦${val.toLocaleString()}`;
     }
-    return `$${amount.toLocaleString()}`;
+    return `$${val.toLocaleString()}`;
   };
 
   return (

@@ -1,193 +1,261 @@
-import { useState } from 'react';
-import { Menu, User, Mail, Phone, MapPin, Calendar, Camera, Shield, Bell, CreditCard, LogOut, Edit2, Save } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Mail, Phone, MapPin, Calendar, Camera, Shield, Bell, CreditCard, LogOut, Edit2, Save, Award, X } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { useAuth } from '../context';
+import { userService } from '../services';
+import { theme } from '../theme';
 
 const ProfilePage = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    name: 'Naya Johnson',
-    email: 'naya.johnson@email.com',
-    phone: '+234 801 234 5678',
-    location: 'Lagos, Nigeria',
-    joinDate: 'January 2024'
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    joinDate: ''
   });
 
-  const stats = [
-    { label: 'Total Invested', value: '₦2.4M', change: '+12%' },
-    { label: 'Active Investments', value: '24', change: '+3' },
-    { label: 'Total Returns', value: '₦456K', change: '+18%' },
-    { label: 'Member Since', value: '2024', change: '1 year' }
-  ];
+  const [securitySettings, setSecuritySettings] = useState({
+    twoFactor: true,
+    biometric: false,
+    lastPasswordChange: '2 months ago'
+  });
 
-  const settings = [
-    { icon: Bell, label: 'Notifications', desc: 'Manage notification preferences' },
-    { icon: Shield, label: 'Security', desc: 'Password and 2FA settings' },
-    { icon: CreditCard, label: 'Payment Methods', desc: 'Manage payment options' }
-  ];
+  const [notificationSettings, setNotificationSettings] = useState({
+    deposits: true,
+    withdrawals: true,
+    investments: true,
+    marketing: false,
+    security: true
+  });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const data = await userService.getProfile();
+      setFormData({
+        name: data.name || user?.name || '',
+        email: data.email || user?.email || '',
+        phone: data.phone || '+234 812 345 6789',
+        location: data.location || 'Lagos, Nigeria',
+        joinDate: data.joinDate || 'January 2024'
+      });
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = () => {
+    setIsEditing(!isEditing);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.colors.dark }}>
+        <div className="w-12 h-12 rounded-full border-2 border-[#a3e635]/20 border-t-[#a3e635] animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
-    <DashboardLayout sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-      <div className="min-h-screen bg-gradient-to-br from-[#0a1f0a] via-[#0d2b0d] to-[#0a1f0a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center gap-4 mb-8">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all">
-              <Menu size={24} />
-            </button>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Profile</h1>
-              <p className="text-gray-400 text-sm mt-1">Manage your account settings</p>
-            </div>
+    <DashboardLayout activeItem="profile">
+      <div className="max-w-7xl mx-auto py-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Account Settings</h1>
+            <p className="text-gray-400">Manage your identity and security</p>
+          </div>
+          <button onClick={logout} className="flex items-center gap-2 px-6 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-2xl transition-all font-bold">
+            <LogOut size={18} />
+            Logout
+          </button>
+        </div>
+
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* Sidebar Tabs */}
+          <div className="lg:col-span-1 space-y-2">
+            {[
+              { id: 'profile', label: 'Personal Info', icon: User },
+              { id: 'security', label: 'Security', icon: Shield },
+              { id: 'notifications', label: 'Notifications', icon: Bell },
+              { id: 'plans', label: 'Membership', icon: Award }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl transition-all font-bold ${activeTab === tab.id ? 'bg-[#a3e635] text-[#0a1f0a] shadow-[0_0_20px_rgba(163,230,53,0.3)]' : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
+              >
+                <tab.icon size={20} />
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 space-y-6">
-              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                <div className="flex flex-col items-center">
-                  <div className="relative mb-4">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#a3e635] to-[#84cc16] flex items-center justify-center text-[#0a1f0a] text-4xl font-bold">
-                      NJ
-                    </div>
-                    <button className="absolute bottom-0 right-0 w-10 h-10 bg-[#a3e635] rounded-full flex items-center justify-center hover:scale-110 transition-all">
-                      <Camera size={18} className="text-[#0a1f0a]" />
-                    </button>
-                  </div>
-                  <h2 className="text-2xl font-bold text-white mb-1">{formData.name}</h2>
-                  <p className="text-gray-400 text-sm mb-4">Premium Investor</p>
-                  <div className="w-full pt-4 border-t border-white/10 space-y-3">
-                    <div className="flex items-center gap-3 text-gray-400">
-                      <Mail size={16} />
-                      <span className="text-sm">{formData.email}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-gray-400">
-                      <Phone size={16} />
-                      <span className="text-sm">{formData.phone}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-gray-400">
-                      <MapPin size={16} />
-                      <span className="text-sm">{formData.location}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-gray-400">
-                      <Calendar size={16} />
-                      <span className="text-sm">Joined {formData.joinDate}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                <h3 className="text-white font-semibold mb-4">Quick Actions</h3>
-                <div className="space-y-2">
-                  {settings.map((setting, index) => (
-                    <button key={index} className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 hover:border-[#a3e635]/30 transition-all text-left group">
-                      <setting.icon className="text-[#a3e635] group-hover:scale-110 transition-transform" size={20} />
-                      <div className="flex-1">
-                        <p className="text-white text-sm font-medium">{setting.label}</p>
-                        <p className="text-gray-400 text-xs">{setting.desc}</p>
+          {/* Tab Content */}
+          <div className="lg:col-span-3">
+            {activeTab === 'profile' && (
+              <div className="space-y-6">
+                <div className="p-8 rounded-3xl backdrop-blur-md border border-white/10 bg-white/5">
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-6">
+                      <div className="relative">
+                        <div className="w-24 h-24 rounded-3xl bg-[#a3e635] flex items-center justify-center text-[#0a1f0a] text-3xl font-bold">
+                          {formData.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-white text-[#0a1f0a] rounded-xl flex items-center justify-center border-4 border-[#0a1f0a] hover:scale-110 transition-all">
+                          <Camera size={14} />
+                        </button>
                       </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white mb-1">{formData.name}</h3>
+                        <p className="text-gray-400 text-sm">Joined {formData.joinDate}</p>
+                      </div>
+                    </div>
+                    <button onClick={handleSave} className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all font-bold flex items-center gap-2">
+                      {isEditing ? <Save size={18} /> : <Edit2 size={18} />}
+                      {isEditing ? 'Save Changes' : 'Edit Profile'}
                     </button>
-                  ))}
-                  <button className="w-full flex items-center gap-3 p-3 bg-red-500/10 hover:bg-red-500/20 rounded-xl border border-red-500/20 hover:border-red-500/40 transition-all text-left group">
-                    <LogOut className="text-red-400 group-hover:scale-110 transition-transform" size={20} />
-                    <div className="flex-1">
-                      <p className="text-red-400 text-sm font-medium">Logout</p>
-                      <p className="text-gray-400 text-xs">Sign out of your account</p>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Full Name</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        disabled={!isEditing}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-[#a3e635] transition-all outline-none disabled:opacity-50"
+                      />
                     </div>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-2 space-y-6">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {stats.map((stat, index) => (
-                  <div key={index} className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                    <p className="text-gray-400 text-xs mb-1">{stat.label}</p>
-                    <p className="text-white text-2xl font-bold mb-1">{stat.value}</p>
-                    <p className="text-[#a3e635] text-xs font-semibold">{stat.change}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-white font-semibold text-xl">Personal Information</h3>
-                  <button onClick={() => setIsEditing(!isEditing)} className="flex items-center gap-2 px-4 py-2 bg-[#a3e635]/20 hover:bg-[#a3e635]/30 text-[#a3e635] rounded-lg transition-all">
-                    {isEditing ? <Save size={16} /> : <Edit2 size={16} />}
-                    {isEditing ? 'Save' : 'Edit'}
-                  </button>
-                </div>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      disabled={!isEditing}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#a3e635]/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      disabled={!isEditing}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#a3e635]/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      disabled={!isEditing}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#a3e635]/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Location</label>
-                    <input
-                      type="text"
-                      value={formData.location}
-                      onChange={(e) => setFormData({...formData, location: e.target.value})}
-                      disabled={!isEditing}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#a3e635]/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    />
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Email Address</label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        disabled={!isEditing}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-[#a3e635] transition-all outline-none disabled:opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Phone Number</label>
+                      <input
+                        type="text"
+                        value={formData.phone}
+                        disabled={!isEditing}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-[#a3e635] transition-all outline-none disabled:opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Location</label>
+                      <input
+                        type="text"
+                        value={formData.location}
+                        disabled={!isEditing}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white focus:border-[#a3e635] transition-all outline-none disabled:opacity-50"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
+            )}
 
-              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                <h3 className="text-white font-semibold text-xl mb-4">Investment Preferences</h3>
+            {activeTab === 'security' && (
+              <div className="space-y-6">
+                <div className="p-8 rounded-3xl backdrop-blur-md border border-white/10 bg-white/5">
+                  <h3 className="text-xl font-bold text-white mb-8">Security Features</h3>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-6 rounded-2xl bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 flex items-center justify-center">
+                          <Shield size={24} className="text-[#a3e635]" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-white">Two-Factor Authentication</p>
+                          <p className="text-xs text-gray-500">Add an extra layer of security to your account</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setSecuritySettings({ ...securitySettings, twoFactor: !securitySettings.twoFactor })}
+                        className={`w-14 h-8 rounded-full relative transition-all ${securitySettings.twoFactor ? 'bg-[#a3e635]' : 'bg-gray-700'}`}
+                      >
+                        <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${securitySettings.twoFactor ? 'right-1' : 'left-1'}`}></div>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-6 rounded-2xl bg-white/5 border border-white/10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#a3e635]/10 flex items-center justify-center">
+                          <Edit2 size={24} className="text-[#a3e635]" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-white">Password Settings</p>
+                          <p className="text-xs text-gray-500">Last changed: {securitySettings.lastPasswordChange}</p>
+                        </div>
+                      </div>
+                      <button className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all font-bold">Update</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-8 rounded-3xl backdrop-blur-md border border-white/10 bg-white/5">
+                  <h3 className="text-xl font-bold text-white mb-6">Active Sessions</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                      <div className="flex items-center gap-4">
+                        <div className="text-gray-400">
+                          <X size={20} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">iPhone 15 Pro • Lagos, NG</p>
+                          <p className="text-xs text-gray-500">Active Now • Velto App</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] uppercase font-bold text-[#a3e635]">Current</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'notifications' && (
+              <div className="p-8 rounded-3xl backdrop-blur-md border border-white/10 bg-white/5">
+                <h3 className="text-xl font-bold text-white mb-8">Notification Preferences</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div>
-                      <p className="text-white font-medium">Risk Tolerance</p>
-                      <p className="text-gray-400 text-sm">Moderate</p>
+                  {[
+                    { id: 'deposits', label: 'Deposits', desc: 'When you add funds to your account' },
+                    { id: 'withdrawals', label: 'Withdrawals', desc: 'When you take money out' },
+                    { id: 'investments', label: 'Investment Alerts', desc: 'Growth updates and new opportunities' },
+                    { id: 'security', label: 'Security Alerts', desc: 'Login notifications and setting changes' }
+                  ].map(pref => (
+                    <div key={pref.id} className="flex items-center justify-between p-6 rounded-2xl bg-white/5 border border-white/10">
+                      <div>
+                        <p className="font-bold text-white">{pref.label}</p>
+                        <p className="text-xs text-gray-500">{pref.desc}</p>
+                      </div>
+                      <button
+                        onClick={() => setNotificationSettings({ ...notificationSettings, [pref.id]: !notificationSettings[pref.id] })}
+                        className={`w-14 h-8 rounded-full relative transition-all ${notificationSettings[pref.id] ? 'bg-[#a3e635]' : 'bg-gray-700'}`}
+                      >
+                        <div className={`absolute top-1 w-6 h-6 rounded-full bg-white transition-all ${notificationSettings[pref.id] ? 'right-1' : 'left-1'}`}></div>
+                      </button>
                     </div>
-                    <button className="px-4 py-2 bg-white/5 hover:bg-white/10 text-[#a3e635] rounded-lg text-sm transition-all">Change</button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div>
-                      <p className="text-white font-medium">Investment Goal</p>
-                      <p className="text-gray-400 text-sm">Long-term Growth</p>
-                    </div>
-                    <button className="px-4 py-2 bg-white/5 hover:bg-white/10 text-[#a3e635] rounded-lg text-sm transition-all">Change</button>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div>
-                      <p className="text-white font-medium">Auto-Invest</p>
-                      <p className="text-gray-400 text-sm">Enabled</p>
-                    </div>
-                    <button className="px-4 py-2 bg-[#a3e635]/20 text-[#a3e635] rounded-lg text-sm font-medium">Active</button>
-                  </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

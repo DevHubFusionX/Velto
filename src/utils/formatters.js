@@ -1,6 +1,7 @@
 export const formatCurrency = (amount, currency = 'NGN') => {
   const symbol = currency === 'NGN' ? '₦' : '$';
-  return `${symbol}${amount.toLocaleString()}`;
+  const value = amount || 0;
+  return `${symbol}${value.toLocaleString()}`;
 };
 
 export const formatDate = (date) => {
