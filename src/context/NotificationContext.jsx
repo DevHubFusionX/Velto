@@ -48,7 +48,6 @@ export const NotificationProvider = ({ children }) => {
         if (!user || !socket) return;
 
         const handleNewNotification = (data) => {
-            console.log('Received real-time notification:', data);
             const normalized = {
                 ...data,
                 id: data.id || data._id

@@ -3,10 +3,6 @@ import { toast } from '../utils/toastEmitter';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
 
-console.log('📡 API Base URL initialized:', API_BASE_URL);
-console.log('🧪 Test Env:', import.meta.env.VITE_TEST);
-console.log('📦 All Vite Env:', import.meta.env);
-
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
