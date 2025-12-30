@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { toast } from '../utils/toastEmitter';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
+const rawBaseURL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = rawBaseURL ? (rawBaseURL.endsWith('/') ? rawBaseURL : `${rawBaseURL}/`) : undefined;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
