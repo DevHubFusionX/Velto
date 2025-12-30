@@ -1,13 +1,55 @@
-import { useState } from 'react';
-import { Menu, Search, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Menu, Search, X, Bell, DollarSign, TrendingUp, AlertCircle, CheckCircle, ChevronRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { theme } from '../../theme';
 import Sidebar from '../dashboard/Sidebar';
 import MarketTicker from '../dashboard/MarketTicker';
-import { useSearch } from '../../context';
+import { useSearch, useNotifications } from '../../context';
 
 const DashboardLayout = ({ children, activeItem }) => {
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const notifRef = useRef(null);
     const { searchQuery, setSearchQuery } = useSearch();
+    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+
+    // Close notifications when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notifRef.current && !notifRef.current.contains(event.target)) {
+                setIsNotifOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const getIcon = (type) => {
+        switch (type) {
+            case 'success': return CheckCircle;
+            case 'info': return TrendingUp;
+            case 'warning': return AlertCircle;
+            case 'deposit': return DollarSign;
+            default: return Bell;
+        }
+    };
+
+    const typeColors = {
+        success: 'text-green-400',
+        info: 'text-blue-400',
+        warning: 'text-yellow-400',
+        deposit: 'text-[#a3e635]',
+        withdrawal: 'text-orange-400',
+        investment: 'text-purple-400',
+        admin: 'text-red-400'
+    };
+
+    const priorityColors = {
+        high: 'bg-red-500/20 text-red-500 border-red-500/20',
+        normal: 'bg-blue-500/20 text-blue-500 border-blue-500/20',
+        low: 'bg-gray-500/20 text-gray-500 border-gray-500/20'
+    };
 
     return (
         <div className="min-h-screen flex relative" style={{ backgroundColor: theme.colors.dark }}>
@@ -47,12 +89,97 @@ const DashboardLayout = ({ children, activeItem }) => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <button className="relative p-3 rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all group">
-                        <div className="absolute top-3 right-3 w-2 h-2 bg-[#a3e635] rounded-full ring-2 ring-[#0a1f0a] animate-pulse"></div>
-                        <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                    </button>
+                    {/* Notifications Button & Dropdown */}
+                    <div className="relative" ref={notifRef}>
+                        <button
+                            onClick={() => setIsNotifOpen(!isNotifOpen)}
+                            className="relative p-3 rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:text-[#a3e635] hover:bg-white/10 transition-all group"
+                        >
+                            {unreadCount > 0 && (
+                                <div className="absolute top-2.5 right-2.5 min-w-[18px] h-[18px] bg-[#a3e635] rounded-full ring-2 ring-[#0a1f0a] flex items-center justify-center animate-bounce">
+                                    <span className="text-[10px] font-bold text-[#0a1f0a] px-1">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                                </div>
+                            )}
+                            <Bell className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {isNotifOpen && (
+                            <div className="absolute right-0 mt-4 w-80 md:w-96 bg-[#0a1f0a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-200">
+                                <div className="p-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                                    <h3 className="text-white font-bold">Recent Notifications</h3>
+                                    {unreadCount > 0 && (
+                                        <button
+                                            onClick={markAllAsRead}
+                                            className="text-xs text-[#a3e635] hover:underline font-medium"
+                                        >
+                                            Mark all read
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    {notifications.length > 0 ? (
+                                        <div className="divide-y divide-white/5">
+                                            {notifications.slice(0, 5).map((n) => {
+                                                const Icon = getIcon(n.type);
+                                                return (
+                                                    <div
+                                                        key={n.id}
+                                                        onClick={() => {
+                                                            markAsRead(n.id);
+                                                            setIsNotifOpen(false);
+                                                            // Handle deep-linking if metadata exists
+                                                            if (n.metadata?.transactionId) {
+                                                                navigate('/transactions');
+                                                            } else if (n.metadata?.investmentId) {
+                                                                navigate('/investments');
+                                                            } else {
+                                                                navigate('/notifications');
+                                                            }
+                                                        }}
+                                                        className={`p-4 hover:bg-white/[0.03] transition-colors cursor-pointer group ${!n.read ? 'bg-[#a3e635]/[0.02]' : ''}`}
+                                                    >
+                                                        <div className="flex gap-4">
+                                                            <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5 ${typeColors[n.type] || 'text-gray-400'}`}>
+                                                                <Icon size={20} />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center justify-between mb-0.5">
+                                                                    <div className="flex items-center gap-2 min-w-0">
+                                                                        <p className={`text-sm font-bold truncate ${!n.read ? 'text-white' : 'text-gray-400'}`}>{n.title}</p>
+                                                                        {n.priority === 'high' && (
+                                                                            <span className="flex-shrink-0 px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase bg-red-500/20 text-red-500 border border-red-500/20">High</span>
+                                                                        )}
+                                                                    </div>
+                                                                    {!n.read && <div className="w-2 h-2 rounded-full bg-[#a3e635]"></div>}
+                                                                </div>
+                                                                <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">{n.message}</p>
+                                                                <p className="text-[10px] text-gray-600 mt-2 font-medium uppercase tracking-wider">{n.time}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="p-10 text-center">
+                                            <Bell className="w-10 h-10 text-gray-700 mx-auto mb-3 opacity-20" />
+                                            <p className="text-gray-500 text-sm">No new notifications</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <Link
+                                    to="/notifications"
+                                    onClick={() => setIsNotifOpen(false)}
+                                    className="block p-4 text-center bg-white/[0.02] border-t border-white/10 text-sm font-bold text-[#a3e635] hover:bg-[#a3e635] hover:text-[#0a1f0a] transition-all"
+                                >
+                                    View All Notifications
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                     <button
                         onClick={() => setIsSidebarOpen(true)}
                         className="lg:hidden p-3 rounded-2xl bg-white/5 border border-white/10 text-[#a3e635] hover:bg-white/10 transition-all"

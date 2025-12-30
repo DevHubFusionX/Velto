@@ -7,6 +7,7 @@ import { validateEmail, validatePassword } from '../utils/validators';
 const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState('');
@@ -40,7 +41,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     }
 
     try {
-      await register({ name, email, password, referralCode });
+      await register({ name, email, phone, password, referralCode });
       onClose();
       navigate('/dashboard');
     } catch (err) {
@@ -101,6 +102,18 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="hi@velto.com"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#a3e635]/60 focus:bg-white/10 transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+234 800 000 0000"
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#a3e635]/60 focus:bg-white/10 transition-all"
                       required
                     />

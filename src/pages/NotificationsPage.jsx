@@ -1,40 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Bell, TrendingUp, DollarSign, AlertCircle, CheckCircle, Trash2, Check } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, TrendingUp, DollarSign, AlertCircle, CheckCircle, Check } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { userService } from '../services';
+import { useNotifications } from '../context';
 import { theme } from '../theme';
 
 const NotificationsPage = () => {
   const [filter, setFilter] = useState('all');
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true);
-      const data = await userService.getNotifications();
-      setNotifications(data || []);
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      const unread = notifications.filter(n => !n.read);
-      await Promise.all(unread.map(n => userService.markNotificationRead(n.id)));
-      fetchNotifications();
-    } catch (error) {
-      console.error('Failed to mark all as read:', error);
-    }
-  };
+  const { notifications, unreadCount, markAsRead, markAllAsRead, refresh, loading } = useNotifications();
 
   const getIcon = (type) => {
     switch (type) {
@@ -50,23 +22,25 @@ const NotificationsPage = () => {
     success: { bg: 'from-green-500/20 to-green-600/10', border: 'border-green-500/30', text: 'text-green-400' },
     info: { bg: 'from-blue-500/20 to-blue-600/10', border: 'border-blue-500/30', text: 'text-blue-400' },
     warning: { bg: 'from-yellow-500/20 to-yellow-600/10', border: 'border-yellow-500/30', text: 'text-yellow-400' },
-    deposit: { bg: 'from-[#a3e635]/20 to-[#a3e635]/10', border: 'border-[#a3e635]/30', text: 'text-[#a3e635]' }
+    deposit: { bg: 'from-[#a3e635]/20 to-[#a3e635]/10', border: 'border-[#a3e635]/30', text: 'text-[#a3e635]' },
+    withdrawal: { bg: 'from-orange-500/20 to-orange-600/10', border: 'border-orange-500/30', text: 'text-orange-400' },
+    investment: { bg: 'from-purple-500/20 to-purple-600/10', border: 'border-purple-500/30', text: 'text-purple-400' },
+    admin: { bg: 'from-red-500/20 to-red-600/10', border: 'border-red-500/30', text: 'text-red-400' }
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
   const filteredNotifications = notifications.filter(n => {
     if (filter === 'all') return true;
     if (filter === 'unread') return !n.read;
     return n.type === filter;
   });
 
-  if (loading) {
+  if (loading && notifications.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.colors.dark }}>
-        <div className="relative">
+      <DashboardLayout activeItem="notifications">
+        <div className="min-h-[400px] flex items-center justify-center">
           <div className="w-12 h-12 rounded-full border-2 border-[#a3e635]/20 border-t-[#a3e635] animate-spin"></div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -78,10 +52,21 @@ const NotificationsPage = () => {
             <h1 className="text-3xl font-bold text-white">Notifications</h1>
             <p className="text-gray-400 text-sm mt-1">{unreadCount} unread notifications</p>
           </div>
-          <button onClick={markAllAsRead} className="px-4 py-2 bg-white/5 hover:bg-white/10 text-[#a3e635] rounded-xl text-sm font-medium transition-all border border-white/10 hover:border-[#a3e635]/30 flex items-center gap-2">
-            <Check size={16} />
-            Mark all read
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={refresh}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl text-sm font-medium transition-all border border-white/10 flex items-center gap-2"
+            >
+              Refresh
+            </button>
+            <button
+              onClick={markAllAsRead}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-[#a3e635] rounded-xl text-sm font-medium transition-all border border-white/10 hover:border-[#a3e635]/30 flex items-center gap-2"
+            >
+              <Check size={16} />
+              Mark all read
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
@@ -104,18 +89,26 @@ const NotificationsPage = () => {
                     <Icon className={colors.text} size={24} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4 mb-1">
-                      <h3 className="text-white font-semibold">{notification.title}</h3>
-                      {!notification.read && (
-                        <span className="w-2 h-2 rounded-full bg-[#a3e635] flex-shrink-0 mt-2"></span>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <h3 className="text-white font-semibold truncate">{notification.title}</h3>
+                      {notification.priority === 'high' && (
+                        <span className="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-red-500/20 text-red-500 border border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.2)]">Priority</span>
                       )}
                     </div>
+                    {!notification.read && (
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#a3e635] flex-shrink-0 mt-1 shadow-[0_0_10px_rgba(163,230,53,0.4)]"></span>
+                    )}
                     <p className="text-gray-400 text-sm mb-2">{notification.message}</p>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-500 text-xs">{notification.time}</span>
-                      <button className="opacity-0 group-hover:opacity-100 p-2 hover:bg-white/10 rounded-lg transition-all">
-                        <Trash2 size={16} className="text-gray-400 hover:text-red-400" />
-                      </button>
+                      {!notification.read && (
+                        <button
+                          onClick={() => markAsRead(notification.id)}
+                          className="opacity-0 group-hover:opacity-100 p-2 hover:bg-white/10 rounded-lg transition-all"
+                        >
+                          <Check size={16} className="text-gray-400 hover:text-[#a3e635]" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

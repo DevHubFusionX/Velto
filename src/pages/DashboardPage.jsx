@@ -33,7 +33,11 @@ const DashboardPage = () => {
             const dashboard = await userService.getDashboard(force);
             setDashboardData(dashboard);
         } catch (error) {
-            console.error('Failed to fetch dashboard data:', error);
+            if (error.response?.status === 503) {
+                console.log('Dashboard fetch skipped: System under maintenance');
+            } else {
+                console.error('Failed to fetch dashboard data:', error);
+            }
         } finally {
             setLoading(false);
         }

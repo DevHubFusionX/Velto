@@ -1,54 +1,36 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const SOCKET_URL = import.meta.env.VITE_API_URL ||
+    (import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : '');
 
 export const useSocket = () => {
     const { user } = useAuth();
-    const socketRef = useRef(null);
+    const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        if (!user) return;
-
-        // Initialize socket connection
-        const socket = io(SOCKET_URL);
-        socketRef.current = socket;
-
-        socket.on('connect', () => {
-            console.log('Connected to socket server');
-            // Join private room
-            socket.emit('join', user.id || user._id);
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from socket server');
-        });
-
-        return () => {
+        if (!user) {
             if (socket) {
                 socket.disconnect();
+                setSocket(null);
             }
-        };
+            return;
+        }
+
+        const newSocket = io(SOCKET_URL, {
+            transports: ['websocket', 'polling']
+        });
+
+        newSocket.on('connect', () => {
+            console.log('Connected to socket server');
+            newSocket.emit('join', user.id || user._id);
+        });
+
+        setSocket(newSocket);
+
+        return () => newSocket.close();
     }, [user]);
 
-    const on = useCallback((event, callback) => {
-        if (socketRef.current) {
-            socketRef.current.on(event, callback);
-        }
-    }, []);
-
-    const off = useCallback((event, callback) => {
-        if (socketRef.current) {
-            socketRef.current.off(event, callback);
-        }
-    }, []);
-
-    const emit = useCallback((event, data) => {
-        if (socketRef.current) {
-            socketRef.current.emit(event, data);
-        }
-    }, []);
-
-    return { on, off, emit, socket: socketRef.current };
+    return socket;
 };

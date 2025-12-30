@@ -41,8 +41,27 @@ export const userService = {
     return response.data;
   },
 
-  deposit: async (amount, method, currency) => {
-    const response = await api.post('/user/deposit', { amount, method, currency });
+  uploadImage: async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await api.post('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  deposit: async (amount, method, currency, proofUrl) => {
+    const payload = { amount, method, currency };
+    
+    // Only include proofUrl for bank transfer method
+    if (method === 'transfer' && proofUrl) {
+      payload.proofUrl = proofUrl;
+    }
+    
+    console.log('UserService: Sending deposit request', payload);
+    const response = await api.post('/user/deposit', payload);
     return response.data;
   },
 
