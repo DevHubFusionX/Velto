@@ -24,10 +24,10 @@ const InvestModal = ({ onClose, onSuccess, initialPlan }) => {
     // Handle initial amount setup if a plan is pre-selected
     useEffect(() => {
         if (selectedPlan) {
-            const min = selectedPlan.minAmount || (currency === 'USD' ? selectedPlan.minInvestment?.usd : selectedPlan.minInvestment?.ngn);
+            const min = selectedPlan.minAmount || selectedPlan.minInvestment?.usd;
             setAmount(min?.toString() || '');
         }
-    }, [selectedPlan, currency]);
+    }, [selectedPlan]);
 
     const fetchPlans = async () => {
         try {
@@ -77,8 +77,8 @@ const InvestModal = ({ onClose, onSuccess, initialPlan }) => {
     };
 
     // Robust field access with fallbacks
-    const planMin = selectedPlan?.minAmount || (currency === 'USD' ? selectedPlan?.minInvestment?.usd : selectedPlan?.minInvestment?.ngn) || 0;
-    const planMax = selectedPlan?.maxAmount || (currency === 'USD' ? selectedPlan?.maxInvestment?.usd : selectedPlan?.maxInvestment?.ngn) || 0;
+    const planMin = selectedPlan?.minAmount || selectedPlan?.minInvestment?.usd || 0;
+    const planMax = selectedPlan?.maxAmount || selectedPlan?.maxInvestment?.usd || 0;
     const dailyPayout = selectedPlan?.dailyPayout || 0;
     const isPercentage = selectedPlan?.isPercentage !== undefined ? selectedPlan.isPercentage : true; // Default to percentage for legacy
 
@@ -209,7 +209,7 @@ const InvestModal = ({ onClose, onSuccess, initialPlan }) => {
                                         <div className="group relative">
                                             <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
                                                 <span className="text-xl md:text-2xl font-black text-gray-500 group-focus-within:text-[#a3e635] transition-colors duration-300">
-                                                    {currency === 'NGN' ? '₦' : '$'}
+                                                    $
                                                 </span>
                                             </div>
                                             <input

@@ -5,9 +5,9 @@ import StatCard from './StatCard';
 
 describe('StatCard', () => {
     it('renders label and value correctly', () => {
-        render(<StatCard label="Test Label" value="₦5,000" />);
+        render(<StatCard label="Test Label" value="$5,000" />);
         expect(screen.getByText('Test Label')).toBeDefined();
-        expect(screen.getByText('₦5,000')).toBeDefined();
+        expect(screen.getByText('$5,000')).toBeDefined();
     });
 
     it('renders subtext when provided', () => {
@@ -16,8 +16,8 @@ describe('StatCard', () => {
     });
 
     it('renders lockedAmount when provided', () => {
-        render(<StatCard label="Label" value="Value" lockedAmount="₦100" />);
-        expect(screen.getByText(/₦100 Locked for withdrawal/)).toBeDefined();
+        render(<StatCard label="Label" value="Value" lockedAmount="$100" />);
+        expect(screen.getByText(/$100 Locked for withdrawal/)).toBeDefined();
     });
 
     it('calls onAction when action button is clicked', () => {

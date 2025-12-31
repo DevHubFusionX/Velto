@@ -185,7 +185,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                             type="tel"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            placeholder="+234 800 000 0000"
+                            placeholder="+1 800 000 0000"
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-[#a3e635]/60 focus:bg-white/10 transition-all text-sm"
                             required
                           />
@@ -306,7 +306,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
                         <Wallet className="w-6 h-6 text-[#a3e635]" />
                       </div>
                       <div>
-                        <div className="text-2xl font-black text-white tracking-tight">₦1.24M</div>
+                        <div className="text-2xl font-black text-white tracking-tight">$8.24K</div>
                         <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Active Liquidity</p>
                       </div>
                     </div>

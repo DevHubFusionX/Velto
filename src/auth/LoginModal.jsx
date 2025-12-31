@@ -132,7 +132,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSwitchToForgotPassw
                         <Wallet className="w-5 h-5 text-[#a3e635]" />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-white">₦1.2M</div>
+                        <div className="text-2xl font-bold text-white">$8.2K</div>
                         <div className="text-xs text-gray-400">Portfolio Value</div>
                       </div>
                     </div>

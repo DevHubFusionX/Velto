@@ -3,8 +3,8 @@ import { formatCurrency, formatDate, formatPercentage } from './formatters';
 
 describe('formatters', () => {
   describe('formatCurrency', () => {
-    it('should format NGN correctly', () => {
-      expect(formatCurrency(1000, 'NGN')).toBe('₦1,000');
+    it('should format USD correctly', () => {
+      expect(formatCurrency(1000, 'USD')).toBe('$1,000');
     });
 
     it('should format USD correctly', () => {
@@ -12,7 +12,7 @@ describe('formatters', () => {
     });
 
     it('should handle zero value', () => {
-      expect(formatCurrency(0, 'NGN')).toBe('₦0');
+      expect(formatCurrency(0, 'USD')).toBe('$0');
     });
 
     // Note: JS toLocaleString() might vary by environment, 

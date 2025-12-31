@@ -1,7 +1,7 @@
-export const formatCurrency = (amount, currency = 'NGN') => {
-  const symbol = currency === 'NGN' ? '₦' : '$';
+export const formatCurrency = (amount, currency = 'USD') => {
+  const symbol = '$';
   const value = amount || 0;
-  return `${symbol}${value.toLocaleString()}`;
+  return `${symbol}${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 export const formatDate = (date) => {
@@ -18,7 +18,7 @@ export const formatPercentage = (value) => {
 
 export const formatTimeAgo = (date) => {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-  
+
   const intervals = {
     year: 31536000,
     month: 2592000,

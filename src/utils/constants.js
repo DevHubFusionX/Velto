@@ -28,6 +28,5 @@ export const NOTIFICATION_TYPES = {
 };
 
 export const CURRENCIES = {
-  NGN: { symbol: '₦', code: 'NGN', name: 'Nigerian Naira' },
   USD: { symbol: '$', code: 'USD', name: 'US Dollar' }
 };

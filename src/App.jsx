@@ -11,6 +11,8 @@ import ProfilePage from './pages/ProfilePage';
 import NotificationsPage from './pages/NotificationsPage';
 import DepositPage from './pages/DepositPage';
 import WithdrawPage from './pages/WithdrawPage';
+import CryptoDepositPage from './pages/CryptoDepositPage';
+import CryptoWithdrawPage from './pages/CryptoWithdrawPage';
 import TransactionsPage from './pages/TransactionsPage';
 import ReferralsPage from './pages/ReferralsPage';
 import MaintenancePage from './pages/MaintenancePage';
@@ -37,7 +39,9 @@ function App() {
                   <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                   <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
                   <Route path="/deposit" element={<ProtectedRoute><DepositPage /></ProtectedRoute>} />
+                  <Route path="/deposit/crypto" element={<ProtectedRoute><CryptoDepositPage /></ProtectedRoute>} />
                   <Route path="/withdraw" element={<ProtectedRoute><WithdrawPage /></ProtectedRoute>} />
+                  <Route path="/withdraw/crypto" element={<ProtectedRoute><CryptoWithdrawPage /></ProtectedRoute>} />
                   <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
                   <Route path="/referrals" element={<ProtectedRoute><ReferralsPage /></ProtectedRoute>} />
                   <Route path="/maintenance" element={<MaintenancePage />} />

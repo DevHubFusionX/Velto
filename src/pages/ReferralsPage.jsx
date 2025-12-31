@@ -66,7 +66,7 @@ const ReferralsPage = () => {
                                         <Gift className="w-8 h-8 text-[#a3e635]" />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-bold text-white">Earn ₦2,500 Bonus</h2>
+                                        <h2 className="text-2xl font-bold text-white">Earn $5.00 Bonus</h2>
                                         <p className="text-gray-400">For every friend who joins and invests</p>
                                     </div>
                                 </div>
@@ -161,8 +161,8 @@ const ReferralsPage = () => {
                             <div className="space-y-4">
                                 {[
                                     { step: '01', title: 'Invite friends', desc: 'Share your code with friends' },
-                                    { step: '02', title: 'They Invest', desc: 'They make an investment of ₦10k+' },
-                                    { step: '03', title: 'You Get Paid', desc: 'Receive ₦2,500 bonus instantly' }
+                                    { step: '02', title: 'They Invest', desc: 'They make an investment of $10+' },
+                                    { step: '03', title: 'You Get Paid', desc: 'Receive $5.00 bonus instantly' }
                                 ].map((step, i) => (
                                     <div key={i} className="flex gap-4">
                                         <span className="text-sm font-bold text-[#a3e635]">{step.step}</span>

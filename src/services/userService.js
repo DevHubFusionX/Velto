@@ -54,12 +54,12 @@ export const userService = {
 
   deposit: async (amount, method, currency, proofUrl) => {
     const payload = { amount, method, currency };
-    
+
     // Only include proofUrl for bank transfer method
     if (method === 'transfer' && proofUrl) {
       payload.proofUrl = proofUrl;
     }
-    
+
     console.log('UserService: Sending deposit request', payload);
     const response = await api.post('/user/deposit', payload);
     return response.data;
@@ -77,6 +77,32 @@ export const userService = {
 
   invest: async (investmentData) => {
     const response = await api.post('/user/invest', investmentData);
+    return response.data;
+  },
+
+  // Crypto Methods
+  getMyCryptoWallets: async () => {
+    const response = await api.get('/user/crypto/wallets');
+    return response.data;
+  },
+
+  getCryptoDepositAddresses: async () => {
+    const response = await api.get('/user/crypto/deposit-addresses');
+    return response.data;
+  },
+
+  initiateCryptoDeposit: async (data) => {
+    const response = await api.post('/user/crypto/deposit', data);
+    return response.data;
+  },
+
+  requestCryptoWithdrawal: async (data) => {
+    const response = await api.post('/user/crypto/withdraw', data);
+    return response.data;
+  },
+
+  submitCryptoProof: async (transactionId, data) => {
+    const response = await api.post(`/user/crypto/deposit/${transactionId}/proof`, data);
     return response.data;
   }
 };

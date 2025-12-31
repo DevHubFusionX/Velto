@@ -70,14 +70,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <div className="p-6 flex flex-col min-h-full">
                     {/* Logo */}
                     <div className="mb-8 flex items-center justify-between">
-                        <div className="flex items-center gap-3 cursor-pointer group">
-                            <div className="relative flex items-center gap-1.5">
-                                <div className="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></div>
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#a3e635] shadow-[0_0_10px_rgba(163,230,53,0.6)] animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                                <div className="w-2.5 h-2.5 rounded-full bg-white/50 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                        <Link to="/dashboard" className="flex items-center gap-3 cursor-pointer group">
+                            <div className="relative flex items-center">
+                                <img src="/Velto-logo.svg" alt="Velto Logo" className="w-12 h-12 object-contain group-hover:scale-110 transition-transform duration-300" />
                             </div>
                             <span className="text-white text-xl font-bold tracking-tight group-hover:text-[#a3e635] transition-colors duration-300">Velto</span>
-                        </div>
+                        </Link>
                         {/* Mobile Close Button */}
                         <button
                             onClick={() => setIsOpen(false)}
@@ -98,7 +96,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 font-semibold">Main Menu</p>
                         <nav className="space-y-2">
                             {menuItems.map((item) => {
-                                const isActive = location.pathname === item.href;
+                                const isActive = item.href === '/'
+                                    ? location.pathname === '/'
+                                    : location.pathname.startsWith(item.href);
                                 return (
                                     <Link
                                         key={item.id}
@@ -124,7 +124,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 font-semibold">Support</p>
                         <nav className="space-y-2">
                             {supportItems.map((item) => {
-                                const isActive = location.pathname === item.href;
+                                const isActive = item.href === '/'
+                                    ? location.pathname === '/'
+                                    : location.pathname.startsWith(item.href);
                                 return (
                                     <Link
                                         key={item.id}

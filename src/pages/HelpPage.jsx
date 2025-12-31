@@ -29,8 +29,8 @@ const HelpPage = () => {
 
   const faqs = [
     { question: 'How do I start investing?', category: 'Getting Started', answer: 'Create an account, complete verification, and browse investment opportunities.' },
-    { question: 'What are the minimum investment amounts?', category: 'Investments', answer: 'Minimum investments start from ₦50,000 depending on the product.' },
-    { question: 'How do I withdraw my funds?', category: 'Withdrawals', answer: 'Navigate to your wallet and request a withdrawal to your linked bank account.' },
+    { question: 'What are the minimum investment amounts?', category: 'Investments', answer: 'Minimum investments start from $10 depending on the product.' },
+    { question: 'How do I withdraw my funds?', category: 'Withdrawals', answer: 'Navigate to your wallet and request a withdrawal to your crypto address.' },
     { question: 'What are the fees?', category: 'Fees', answer: 'We charge a 2% management fee on returns. No hidden charges.' },
     { question: 'How secure is my investment?', category: 'Security', answer: 'All investments are insured and we use bank-level encryption.' },
     { question: 'Can I cancel an investment?', category: 'Investments', answer: 'Investments can be cancelled within 24 hours of purchase.' }
@@ -154,7 +154,7 @@ const HelpPage = () => {
               <div className="space-y-4">
                 {[
                   { icon: Mail, label: 'Email Support', val: 'support@velto.com' },
-                  { icon: Phone, label: 'Call Center', val: '+234 800 123 4500' },
+                  { icon: Phone, label: 'Call Center', val: '+1 800 123 4500' },
                   { icon: Clock, label: 'Available', val: '24/7 Priority Access' }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
