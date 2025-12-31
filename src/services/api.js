@@ -14,7 +14,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    if (token) {
+    const isLoginRequest = config.url.includes('/auth/login') || config.url.includes('login');
+
+    if (token && !isLoginRequest) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -29,8 +31,20 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      toast.error('Session expired. Please login again.');
-      window.location.href = '/';
+
+      // Don't show toast or redirect if we're on the landing page or it's a login attempt
+      const path = window.location.pathname;
+      const url = error.config?.url || '';
+
+      const isAuthPage = path === '/' || path === '/login' || path.includes('login');
+      const isLoginRequest = url.includes('/auth/login') || url.includes('login');
+
+      console.log('401 Interceptor:', { path, url, isAuthPage, isLoginRequest });
+
+      if (!isAuthPage && !isLoginRequest) {
+        toast.error('Session expired. Please login again.');
+        window.location.href = '/';
+      }
     } else if (error.response?.status === 403 && message.toLowerCase().includes('suspended')) {
       localStorage.removeItem('token');
       toast.error(message);

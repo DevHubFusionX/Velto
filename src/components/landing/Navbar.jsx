@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { theme } from '../../theme';
 import { LoginModal, RegisterModal, ForgotPasswordModal } from '../../auth';
+import { useAuth } from '../../context';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
@@ -35,19 +39,42 @@ const Navbar = () => {
 
                         {/* CTA Buttons */}
                         <div className="hidden md:flex items-center gap-3">
-                            <button onClick={() => setShowLogin(true)} className="relative text-white font-medium text-sm px-5 py-2 rounded-full transition-all duration-300 hover:text-[#a3e635] group overflow-hidden">
-                                <span className="absolute inset-0 border border-white/20 rounded-full group-hover:border-[#a3e635]/50 transition-colors duration-300"></span>
-                                <span className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300"></span>
-                                <span className="relative">Sign In</span>
-                            </button>
-                            <button
-                                onClick={() => setShowRegister(true)}
-                                className="relative font-medium text-sm px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 text-[#0a1f0a] overflow-hidden group"
-                                style={{ backgroundColor: theme.colors.primary }}
-                            >
-                                <span className="absolute inset-0 bg-gradient-to-r from-[#a3e635] via-[#84cc16] to-[#a3e635] bg-[length:200%_100%] group-hover:animate-[shimmer_2s_infinite]"></span>
-                                <span className="relative font-semibold">Open an Account</span>
-                            </button>
+                            {user ? (
+                                <>
+                                    <button
+                                        onClick={() => navigate('/dashboard')}
+                                        className="relative text-white font-medium text-sm px-5 py-2 rounded-full transition-all duration-300 hover:text-[#a3e635] group overflow-hidden"
+                                    >
+                                        <span className="absolute inset-0 border border-white/20 rounded-full group-hover:border-[#a3e635]/50 transition-colors duration-300"></span>
+                                        <span className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300"></span>
+                                        <span className="relative">Dashboard</span>
+                                    </button>
+                                    <button
+                                        onClick={logout}
+                                        className="relative font-medium text-sm px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 text-[#0a1f0a] overflow-hidden group"
+                                        style={{ backgroundColor: theme.colors.primary }}
+                                    >
+                                        <span className="absolute inset-0 bg-gradient-to-r from-red-500 via-red-600 to-red-500 bg-[length:200%_100%] group-hover:animate-[shimmer_2s_infinite]"></span>
+                                        <span className="relative font-semibold text-white">Sign Out</span>
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button onClick={() => setShowLogin(true)} className="relative text-white font-medium text-sm px-5 py-2 rounded-full transition-all duration-300 hover:text-[#a3e635] group overflow-hidden">
+                                        <span className="absolute inset-0 border border-white/20 rounded-full group-hover:border-[#a3e635]/50 transition-colors duration-300"></span>
+                                        <span className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300"></span>
+                                        <span className="relative">Sign In</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setShowRegister(true)}
+                                        className="relative font-medium text-sm px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 text-[#0a1f0a] overflow-hidden group"
+                                        style={{ backgroundColor: theme.colors.primary }}
+                                    >
+                                        <span className="absolute inset-0 bg-gradient-to-r from-[#a3e635] via-[#84cc16] to-[#a3e635] bg-[length:200%_100%] group-hover:animate-[shimmer_2s_infinite]"></span>
+                                        <span className="relative font-semibold">Open an Account</span>
+                                    </button>
+                                </>
+                            )}
                         </div>
 
                         {/* Mobile Menu Button */}
@@ -72,16 +99,35 @@ const Navbar = () => {
                         <div className="mx-6 mt-4 backdrop-blur-xl bg-[#0a1f0a]/95 border border-white/10 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden">
                             <div className="px-4 pt-4 pb-6 space-y-2">
                                 <div className="flex flex-col gap-3 px-2">
-                                    <button onClick={() => { setShowLogin(true); setIsOpen(false); }} className="w-full text-white font-medium text-sm px-4 py-3 border border-white/20 rounded-full hover:bg-white/5 hover:border-[#a3e635]/50 transition-all duration-300">
-                                        Sign In
-                                    </button>
-                                    <button
-                                        onClick={() => { setShowRegister(true); setIsOpen(false); }}
-                                        className="w-full font-semibold text-sm px-5 py-3 rounded-full text-[#0a1f0a] shadow-[0_0_20px_rgba(163,230,53,0.4)] hover:scale-[1.02] transition-transform duration-300"
-                                        style={{ backgroundColor: theme.colors.primary }}
-                                    >
-                                        Open an Account
-                                    </button>
+                                    {user ? (
+                                        <>
+                                            <button
+                                                onClick={() => { navigate('/dashboard'); setIsOpen(false); }}
+                                                className="w-full text-white font-medium text-sm px-4 py-3 border border-white/20 rounded-full hover:bg-white/5 hover:border-[#a3e635]/50 transition-all duration-300"
+                                            >
+                                                Dashboard
+                                            </button>
+                                            <button
+                                                onClick={() => { logout(); setIsOpen(false); }}
+                                                className="w-full font-semibold text-sm px-5 py-3 rounded-full text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] hover:scale-[1.02] transition-transform duration-300 bg-red-600"
+                                            >
+                                                Sign Out
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button onClick={() => { setShowLogin(true); setIsOpen(false); }} className="w-full text-white font-medium text-sm px-4 py-3 border border-white/20 rounded-full hover:bg-white/5 hover:border-[#a3e635]/50 transition-all duration-300">
+                                                Sign In
+                                            </button>
+                                            <button
+                                                onClick={() => { setShowRegister(true); setIsOpen(false); }}
+                                                className="w-full font-semibold text-sm px-5 py-3 rounded-full text-[#0a1f0a] shadow-[0_0_20px_rgba(163,230,53,0.4)] hover:scale-[1.02] transition-transform duration-300"
+                                                style={{ backgroundColor: theme.colors.primary }}
+                                            >
+                                                Open an Account
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
