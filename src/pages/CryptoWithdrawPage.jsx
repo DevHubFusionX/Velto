@@ -34,6 +34,7 @@ const CryptoWithdrawPage = () => {
     const [success, setSuccess] = useState(false);
     const [balance, setBalance] = useState(0);
     const [lockedBalance, setLockedBalance] = useState(0);
+    const [settings, setSettings] = useState({ minWithdrawal: 20, maxWithdrawal: 50000 });
     const [step, setStep] = useState(1);
     const [selectedCrypto, setSelectedCrypto] = useState(null);
 
@@ -49,17 +50,26 @@ const CryptoWithdrawPage = () => {
     }));
 
     useEffect(() => {
-        fetchBalance();
+        fetchData();
     }, []);
 
-    const fetchBalance = async () => {
+    const fetchData = async () => {
         try {
             setLoading(true);
-            const data = await userService.getDashboard();
-            setBalance(data.totalBalance || 0);
-            setLockedBalance(data.lockedBalance || 0);
+            const [dashboardData, walletData] = await Promise.all([
+                userService.getDashboard(),
+                userService.getCryptoDepositAddresses() // Reusing this generic endpoint for settings
+            ]);
+
+            setBalance(dashboardData.totalBalance || 0);
+            setLockedBalance(dashboardData.lockedBalance || 0);
+
+            if (walletData.settings) {
+                setSettings(walletData.settings);
+            }
         } catch (error) {
-            console.error('Failed to fetch balance:', error);
+            console.error('Failed to fetch data:', error);
+            addToast('Failed to load wallet data', 'error');
         } finally {
             setLoading(false);
         }
@@ -74,6 +84,16 @@ const CryptoWithdrawPage = () => {
         const amountUsd = parseFloat(formData.amountUsd);
         if (isNaN(amountUsd) || amountUsd <= 0) {
             addToast('Please enter a valid amount', 'error');
+            return;
+        }
+
+        if (amountUsd < settings.minWithdrawal) {
+            addToast(`Minimum withdrawal is $${settings.minWithdrawal}`, 'error');
+            return;
+        }
+
+        if (amountUsd > settings.maxWithdrawal) {
+            addToast(`Maximum withdrawal is $${settings.maxWithdrawal}`, 'error');
             return;
         }
 
@@ -224,8 +244,8 @@ const CryptoWithdrawPage = () => {
                                                     key={crypto.currency}
                                                     onClick={() => setSelectedCrypto(crypto)}
                                                     className={`p-4 rounded-2xl border transition-all text-left ${isSelected
-                                                            ? 'bg-[#a3e635]/10 border-[#a3e635]'
-                                                            : 'bg-white/5 border-white/10 hover:border-white/20'
+                                                        ? 'bg-[#a3e635]/10 border-[#a3e635]'
+                                                        : 'bg-white/5 border-white/10 hover:border-white/20'
                                                         }`}
                                                 >
                                                     <div
@@ -257,11 +277,20 @@ const CryptoWithdrawPage = () => {
                                                 className="w-full bg-[#0a1f0a]/50 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-3xl font-bold text-white"
                                             />
                                         </div>
-                                        {parseFloat(formData.amountUsd) > balance && (
-                                            <p className="text-rose-400 text-sm mt-2 flex items-center gap-1">
-                                                <AlertCircle size={14} /> Insufficient funds
+                                        <div className="flex justify-between mt-2 px-1">
+                                            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                                                Min: ${settings.minWithdrawal}
                                             </p>
-                                        )}
+                                            {parseFloat(formData.amountUsd) > balance ? (
+                                                <p className="text-rose-400 text-xs flex items-center gap-1 font-bold uppercase tracking-widest">
+                                                    <AlertCircle size={12} /> Insufficient funds
+                                                </p>
+                                            ) : (
+                                                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                                                    Max: ${settings.maxWithdrawal}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <button
