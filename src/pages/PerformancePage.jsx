@@ -259,7 +259,7 @@ const PerformancePage = () => {
                                         <TrendingUp className="w-6 h-6 text-gray-500 group-hover:text-[#a3e635] transition-all" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-white text-sm">{inv.product}</h4>
+                                        <h4 className="font-bold text-white text-sm">{inv.planName || inv.productName || 'Investment'}</h4>
                                         <div className="flex items-center gap-2 mt-1">
                                             <span className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{inv.status}</span>
                                             <span className="w-1 h-1 rounded-full bg-gray-700"></span>
@@ -268,8 +268,13 @@ const PerformancePage = () => {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-lg font-bold text-white">{formatAmount(inv.currentValue)}</div>
-                                    <div className="text-xs font-bold text-[#a3e635]">{inv.returns}</div>
+                                    <div className="text-lg font-bold text-white">{formatAmount(inv.currentValue || inv.amount)}</div>
+                                    <div className="text-xs font-bold text-[#a3e635]">
+                                        {/* Display ROI or Total Returns if available */}
+                                        {inv.totalPayoutReceived ? `+${formatAmount(inv.totalPayoutReceived)}` :
+                                            inv.roiPercent ? `+${inv.roiPercent}% ROI` :
+                                                inv.returns || '+0.00'}
+                                    </div>
                                 </div>
                             </div>
                         ))}
