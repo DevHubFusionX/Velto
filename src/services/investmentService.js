@@ -39,7 +39,7 @@ export const investmentService = {
   },
 
   getMyInvestments: async () => {
-    const response = await api.get('/investments/my/investments');
+    const response = await api.get('/investments');
     return response.data;
   },
 

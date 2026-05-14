@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 
 const DashboardPage = () => {
     const navigate = useNavigate();
-    const { currency, setCurrency } = useCurrency();
+    const { currency } = useCurrency();
     const { searchQuery } = useSearch();
     const { user } = useAuth();
     const [dashboardData, setDashboardData] = useState(null);
@@ -98,27 +98,6 @@ const DashboardPage = () => {
                     <p className="text-sm text-gray-400">Manage your investments and track returns</p>
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                    {/* Currency Switcher */}
-                    <div className="flex items-center gap-2 p-1 rounded-xl bg-white/5 border border-white/10">
-                        <button
-                            onClick={() => setCurrency('NGN')}
-                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${currency === 'NGN'
-                                ? 'bg-[#a3e635] text-[#0a1f0a]'
-                                : 'text-gray-400 hover:text-white'
-                                }`}
-                        >
-                            NGN
-                        </button>
-                        <button
-                            onClick={() => setCurrency('USD')}
-                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${currency === 'USD'
-                                ? 'bg-[#a3e635] text-[#0a1f0a]'
-                                : 'text-gray-400 hover:text-white'
-                                }`}
-                        >
-                            USD
-                        </button>
-                    </div>
                     <button onClick={() => navigate('/notifications')} className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all border border-white/10 hover:border-[#a3e635]/30 backdrop-blur-md" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                         <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -226,10 +205,7 @@ const DashboardPage = () => {
                                     <div className="flex justify-between">
                                         <span className="text-sm text-gray-400">Min. Investment</span>
                                         <span className="text-sm font-semibold text-white">
-                                            {typeof product.minInvestment === 'object'
-                                                ? formatCurrency(currency === 'USD' ? product.minInvestment.usd : product.minInvestment.ngn, currency)
-                                                : formatCurrency(product.minInvestment, currency)
-                                            }
+                                            {formatCurrency(product.minAmount || product.minInvestment, currency)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">

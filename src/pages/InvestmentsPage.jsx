@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { theme } from '../theme';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { TrendingUp, Wallet, DollarSign, Clock, Plus, ArrowUpRight, Calendar, Target, Award, CheckCircle2, X, History, LogOut } from 'lucide-react';
+import { TrendingUp, Wallet, DollarSign, Clock, Plus, ArrowUpRight, Calendar, Target, Award, CheckCircle2, X, History, LogOut, Loader2 } from 'lucide-react';
 import { useCurrency, useAuth, useToast, useSearch } from '../context';
 import { investmentService } from '../services';
 import { formatCurrency } from '../utils';
@@ -11,7 +11,7 @@ import WithdrawInvestmentModal from '../components/WithdrawInvestmentModal';
 
 const InvestmentsPage = () => {
     const navigate = useNavigate();
-    const { currency, setCurrency } = useCurrency();
+    const { currency } = useCurrency();
     const { searchQuery } = useSearch();
     const { user } = useAuth();
     const { addToast } = useToast();
@@ -259,8 +259,5 @@ const InvestmentsPage = () => {
         </DashboardLayout>
     );
 };
-
-// Simple loader placeholder if not imported
-const Loader2 = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v4m0 4v4m-4-4h4m4-4h4" /></svg>;
 
 export default InvestmentsPage;

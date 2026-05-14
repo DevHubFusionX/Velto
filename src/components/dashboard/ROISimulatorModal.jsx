@@ -3,21 +3,16 @@ import { X, Calculator, TrendingUp, Info } from 'lucide-react';
 import { useCurrency } from '../../context';
 
 const ROISimulatorModal = ({ isOpen, onClose, product }) => {
-    const { formatAmount, currency } = useCurrency();
+    const { formatAmount } = useCurrency();
     const [amount, setAmount] = useState(0);
     const [durationMonths, setDurationMonths] = useState(12);
 
     useEffect(() => {
         if (product) {
-            const min = currency === 'USD' ? product.minAmount?.usd : product.minAmount?.ngn;
-            if (min) {
-                setAmount(min);
-            }
-            if (product.durationDays) {
-                setDurationMonths(Math.round(product.durationDays / 30));
-            }
+            if (product.minAmount) setAmount(product.minAmount?.usd || product.minAmount || 0);
+            if (product.durationDays) setDurationMonths(Math.round(product.durationDays / 30));
         }
-    }, [product, currency]);
+    }, [product]);
 
     if (!isOpen || !product) return null;
 
@@ -67,9 +62,9 @@ const ROISimulatorModal = ({ isOpen, onClose, product }) => {
                                 </div>
                                 <input
                                     type="range"
-                                    min={currency === 'USD' ? product.minAmount?.usd : product.minAmount?.ngn}
-                                    max={currency === 'USD' ? product.maxAmount?.usd : product.maxAmount?.ngn}
-                                    step={currency === 'USD' ? 100 : 1000}
+                                    min={product.minAmount?.usd || product.minAmount || 0}
+                                    max={product.maxAmount?.usd || product.maxAmount || 100000}
+                                    step={100}
                                     value={amount}
                                     onChange={(e) => setAmount(Number(e.target.value))}
                                     className="w-full h-1.5 bg-white/5 rounded-full appearance-none cursor-pointer accent-[#a3e635]"

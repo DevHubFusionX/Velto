@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Gift, Copy, Check, Share2, TrendingUp, DollarSign } from 'lucide-react';
+import { Users, Gift, Copy, Check, Share2, TrendingUp, DollarSign, MessageCircle, Send } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { useCurrency, useToast } from '../context';
 import { userService } from '../services';
@@ -10,6 +10,7 @@ const ReferralsPage = () => {
     const { addToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [referralData, setReferralData] = useState(null);
+    const [rewardPercent, setRewardPercent] = useState(3);
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
@@ -19,8 +20,12 @@ const ReferralsPage = () => {
     const fetchReferrals = async () => {
         try {
             setLoading(true);
-            const data = await userService.getDashboard();
-            setReferralData(data.referrals);
+            const [dashboard, settings] = await Promise.all([
+                userService.getDashboard(),
+                userService.getSettings()
+            ]);
+            setReferralData(dashboard.referrals);
+            setRewardPercent(settings?.referral?.rewardPercent ?? 3);
         } catch (error) {
             console.error('Failed to fetch referrals:', error);
         } finally {
@@ -28,11 +33,28 @@ const ReferralsPage = () => {
         }
     };
 
-    const copyToClipboard = () => {
+    const referralLink = `${window.location.origin}/?ref=${referralData?.code}`;
+
+    const copyCode = () => {
         navigator.clipboard.writeText(referralData?.code || '');
         setCopied(true);
         addToast('Referral code copied!', 'success');
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const copyLink = () => {
+        navigator.clipboard.writeText(referralLink);
+        addToast('Referral link copied!', 'success');
+    };
+
+    const shareWhatsApp = () => {
+        const msg = encodeURIComponent(`Join Velto and start earning! Use my referral code: ${referralData?.code}\n${referralLink}`);
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    };
+
+    const shareTelegram = () => {
+        const msg = encodeURIComponent(`Join Velto and start earning! Use my referral code: ${referralData?.code}`);
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${msg}`, '_blank');
     };
 
     if (loading) {
@@ -46,31 +68,29 @@ const ReferralsPage = () => {
     return (
         <DashboardLayout activeItem="referrals">
             <div className="max-w-7xl mx-auto py-8">
-                {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-white mb-2">Refer & Earn</h1>
-                    <p className="text-gray-400">Invite your friends and earn rewards on their first investment</p>
+                    <p className="text-gray-400">Invite friends and earn {rewardPercent}% of their first investment</p>
                 </div>
 
-                {/* Main Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left: Referral Widget */}
                     <div className="lg:col-span-2 space-y-6">
+                        {/* Main Widget */}
                         <div className="p-8 rounded-3xl backdrop-blur-md border relative overflow-hidden"
                             style={{ background: 'linear-gradient(135deg, rgba(163, 230, 53, 0.1), rgba(132, 204, 22, 0.05))', borderColor: 'rgba(163, 230, 53, 0.3)' }}>
                             <div className="absolute top-0 right-0 w-64 h-64 bg-[#a3e635]/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-
                             <div className="relative">
                                 <div className="flex items-center gap-4 mb-8">
                                     <div className="w-16 h-16 rounded-2xl bg-[#a3e635]/20 flex items-center justify-center">
                                         <Gift className="w-8 h-8 text-[#a3e635]" />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-bold text-white">Earn $5.00 Bonus</h2>
-                                        <p className="text-gray-400">For every friend who joins and invests</p>
+                                        <h2 className="text-2xl font-bold text-white">Earn {rewardPercent}% Bonus</h2>
+                                        <p className="text-gray-400">Of every friend's first investment amount</p>
                                     </div>
                                 </div>
 
+                                {/* Referral Code */}
                                 <div className="space-y-4 mb-8">
                                     <label className="text-sm font-bold text-gray-500 uppercase tracking-widest">Your Referral Code</label>
                                     <div className="flex gap-4">
@@ -78,49 +98,44 @@ const ReferralsPage = () => {
                                             {referralData?.code}
                                             {copied ? <Check className="text-[#a3e635]" /> : <Copy className="text-gray-500" />}
                                         </div>
-                                        <button
-                                            onClick={copyToClipboard}
-                                            className="px-8 rounded-2xl bg-[#a3e635] text-[#0a1f0a] font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(163,230,53,0.3)]"
-                                        >
+                                        <button onClick={copyCode}
+                                            className="px-8 rounded-2xl bg-[#a3e635] text-[#0a1f0a] font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(163,230,53,0.3)]">
                                             Copy
                                         </button>
                                     </div>
                                 </div>
 
+                                {/* Share Buttons */}
                                 <div className="grid grid-cols-3 gap-4">
-                                    <button
-                                        onClick={() => {
-                                            const url = `${window.location.origin}/?ref=${referralData?.code}`;
-                                            navigator.clipboard.writeText(url);
-                                            addToast('Referral link copied!', 'success');
-                                        }}
-                                        className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/btn"
-                                    >
+                                    <button onClick={copyLink}
+                                        className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group/btn">
                                         <Share2 size={20} className="text-[#a3e635] group-hover/btn:scale-110 transition-transform" />
-                                        <span className="text-[10px] uppercase font-bold text-gray-500">Share Link</span>
+                                        <span className="text-[10px] uppercase font-bold text-gray-500">Copy Link</span>
                                     </button>
-                                    <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/10">
-                                        <TrendingUp size={20} className="text-[#a3e635]" />
-                                        <span className="text-[10px] uppercase font-bold text-gray-500">Track Progress</span>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/10">
-                                        <DollarSign size={20} className="text-[#a3e635]" />
-                                        <span className="text-[10px] uppercase font-bold text-gray-500">Get Paid</span>
-                                    </div>
+                                    <button onClick={shareWhatsApp}
+                                        className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-[#25D366]/10 hover:border-[#25D366]/30 transition-all group/btn">
+                                        <MessageCircle size={20} className="text-[#25D366] group-hover/btn:scale-110 transition-transform" />
+                                        <span className="text-[10px] uppercase font-bold text-gray-500">WhatsApp</span>
+                                    </button>
+                                    <button onClick={shareTelegram}
+                                        className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-[#229ED9]/10 hover:border-[#229ED9]/30 transition-all group/btn">
+                                        <Send size={20} className="text-[#229ED9] group-hover/btn:scale-110 transition-transform" />
+                                        <span className="text-[10px] uppercase font-bold text-gray-500">Telegram</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         {/* Referral History */}
                         <div className="p-8 rounded-3xl backdrop-blur-md border"
-                            style={{ background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))', borderColor: 'rgba(255,255,255,0.1)' }}>
                             <h3 className="text-xl font-bold text-white mb-6">Recent Referrals</h3>
                             <div className="space-y-4">
-                                {referralData?.history.map((ref, i) => (
+                                {referralData?.history?.length > 0 ? referralData.history.map((ref, i) => (
                                     <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white font-bold">
-                                                {ref.name.split(' ').map(n => n[0]).join('')}
+                                                {ref.name?.split(' ').map(n => n[0]).join('') || '?'}
                                             </div>
                                             <div>
                                                 <p className="font-bold text-white text-sm">{ref.name}</p>
@@ -134,7 +149,12 @@ const ReferralsPage = () => {
                                             <p className="text-sm font-bold text-white">{ref.bonus > 0 ? `+${formatAmount(ref.bonus)}` : '--'}</p>
                                         </div>
                                     </div>
-                                ))}
+                                )) : (
+                                    <div className="text-center py-10 text-gray-500">
+                                        <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                                        <p className="text-sm">No referrals yet. Share your code to get started!</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -142,7 +162,7 @@ const ReferralsPage = () => {
                     {/* Right: Stats & How it works */}
                     <div className="space-y-6">
                         <div className="p-6 rounded-3xl backdrop-blur-md border"
-                            style={{ background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02))', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))', borderColor: 'rgba(255,255,255,0.1)' }}>
                             <p className="text-gray-500 text-[10px] uppercase font-bold mb-4">Earnings Summary</p>
                             <div className="space-y-6">
                                 <div>
@@ -160,9 +180,9 @@ const ReferralsPage = () => {
                             <h4 className="text-white font-bold mb-4">How it works</h4>
                             <div className="space-y-4">
                                 {[
-                                    { step: '01', title: 'Invite friends', desc: 'Share your code with friends' },
-                                    { step: '02', title: 'They Invest', desc: 'They make an investment of $10+' },
-                                    { step: '03', title: 'You Get Paid', desc: 'Receive $5.00 bonus instantly' }
+                                    { step: '01', title: 'Invite friends', desc: 'Share your code or link' },
+                                    { step: '02', title: 'They Invest', desc: 'Friend makes their first investment' },
+                                    { step: '03', title: 'You Get Paid', desc: `Earn ${rewardPercent}% of their investment amount` }
                                 ].map((step, i) => (
                                     <div key={i} className="flex gap-4">
                                         <span className="text-sm font-bold text-[#a3e635]">{step.step}</span>
