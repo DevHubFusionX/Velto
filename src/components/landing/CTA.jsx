@@ -58,7 +58,7 @@ const CTA = () => {
 
                             {/* Subheading */}
                             <p className="text-base sm:text-lg md:text-xl text-[#0a1f0a]/80 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed">
-                                Join thousands of investors who trust us with their financial future. Get started in under 2 minutes with as little as $10.
+                                Join thousands of investors already earning daily returns. Deposit with crypto and start your first plan in under 2 minutes.
                             </p>
 
                             {/* CTA Buttons */}
@@ -75,22 +75,16 @@ const CTA = () => {
                             {/* Trust Indicators */}
                             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-xs sm:text-sm text-[#0a1f0a]/70">
                                 <div className="flex items-center justify-center gap-2">
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                    </svg>
-                                    <span className="font-medium">No credit card required</span>
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                    <span className="font-medium">Crypto deposits supported</span>
                                 </div>
                                 <div className="flex items-center justify-center gap-2">
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                    </svg>
-                                    <span className="font-medium">Cancel anytime</span>
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                    <span className="font-medium">Daily payouts, every day</span>
                                 </div>
                                 <div className="flex items-center justify-center gap-2">
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                    </svg>
-                                    <span className="font-medium">FDIC Insured</span>
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                    <span className="font-medium">No hidden fees</span>
                                 </div>
                             </div>
                         </div>
