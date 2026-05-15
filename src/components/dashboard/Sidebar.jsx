@@ -27,7 +27,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: 'grid', href: '/dashboard' },
         { id: 'investments', label: 'My Investments', icon: 'chart', href: '/investments' },
-        { id: 'performance', label: 'Performance', icon: 'trending', href: '/performance' },
         { id: 'referrals', label: 'Refer & Earn', icon: 'gift', href: '/referrals' },
         { id: 'transactions', label: 'History', icon: 'clock', href: '/transactions' },
         { id: 'deposit', label: 'Deposit Funds', icon: 'plus', href: '/deposit' },

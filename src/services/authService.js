@@ -5,7 +5,7 @@ export const authService = {
     localStorage.removeItem('token');
     const response = await api.post('/auth/login', { email, password });
     if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+      sessionStorage.setItem('token', response.data.token);
     }
     return response.data;
   },
@@ -13,7 +13,7 @@ export const authService = {
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
     if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+      sessionStorage.setItem('token', response.data.token);
     }
     return response.data;
   },
@@ -39,7 +39,7 @@ export const authService = {
   },
 
   logout: () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     window.location.href = '/';
   },
 

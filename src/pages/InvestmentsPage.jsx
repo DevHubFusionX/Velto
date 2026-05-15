@@ -2,12 +2,154 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { theme } from '../theme';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { TrendingUp, Wallet, DollarSign, Clock, Plus, ArrowUpRight, Calendar, Target, Award, CheckCircle2, X, History, LogOut, Loader2 } from 'lucide-react';
+import { TrendingUp, Plus, History, Loader2, CalendarClock, CheckCircle2, Clock, CircleDot } from 'lucide-react';
 import { useCurrency, useAuth, useToast, useSearch } from '../context';
 import { investmentService } from '../services';
 import { formatCurrency } from '../utils';
 import InvestModal from '../components/InvestModal';
 import WithdrawInvestmentModal from '../components/WithdrawInvestmentModal';
+
+const DayProgress = ({ startDate, endDate }) => {
+    const totalMs = endDate - startDate;
+    const [elapsedMs, setElapsedMs] = useState(() => Math.min(Date.now() - startDate, totalMs));
+    const [animated, setAnimated] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setAnimated(true), 300);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        if (elapsedMs >= totalMs) return;
+        const id = setInterval(() => {
+            setElapsedMs(Math.min(Date.now() - startDate, totalMs));
+        }, 60000);
+        return () => clearInterval(id);
+    }, [startDate, totalMs]);
+
+    const totalDays = Math.ceil(totalMs / 86400000);
+    const exactProgress = animated ? Math.min(elapsedMs / totalMs, 1) : 0;
+
+    // time remaining label
+    const msLeft = Math.max(totalMs - elapsedMs, 0);
+    const daysLeft = Math.floor(msLeft / 86400000);
+    const hoursLeft = Math.floor((msLeft % 86400000) / 3600000);
+    const timeLabel = msLeft <= 0 ? 'Completed' :
+        daysLeft > 0 ? `${daysLeft}d ${hoursLeft}h left` : `${hoursLeft}h left`;
+
+    const MAX_DOTS = 30;
+    const step = totalDays <= MAX_DOTS ? 1 : Math.ceil(totalDays / MAX_DOTS);
+    const dots = [];
+    for (let d = 0; d < totalDays; d += step) dots.push(d);
+
+    return (
+        <div className="mt-6">
+            <div className="flex justify-between text-xs text-gray-500 mb-2">
+                <span>Day {Math.floor(elapsedMs / 86400000)} of {totalDays}</span>
+                <span className={msLeft < 86400000 && msLeft > 0 ? 'text-yellow-400' : ''}>{timeLabel}</span>
+            </div>
+            <div className="flex gap-[3px] items-center">
+                {dots.map((d, i) => {
+                    const dotStart = d / totalDays;
+                    const dotEnd = Math.min((d + step) / totalDays, 1);
+                    const fill = Math.min(Math.max((exactProgress - dotStart) / (dotEnd - dotStart), 0), 1);
+                    const isLeading = fill > 0 && fill < 1;
+                    return (
+                        <div
+                            key={i}
+                            className="flex-1 h-2 rounded-sm overflow-hidden"
+                            style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
+                        >
+                            <div
+                                className="h-full rounded-sm"
+                                style={{
+                                    width: `${fill * 100}%`,
+                                    backgroundColor: '#a3e635',
+                                    transition: animated ? 'width 0.6s ease' : 'none',
+                                    transitionDelay: animated ? `${i * 25}ms` : '0ms',
+                                    boxShadow: isLeading ? '0 0 8px #a3e635, 0 0 16px #a3e63560' : 'none',
+                                }}
+                            />
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+// Payout schedule for a single investment
+const PayoutSchedule = ({ inv, currency }) => {
+    const totalDays = Math.ceil((inv.endTs - inv.startTs) / 86400000);
+    const today = Date.now();
+
+    const rows = Array.from({ length: totalDays }, (_, i) => {
+        const payoutTs = inv.startTs + (i + 1) * 86400000;
+        const isPaid = payoutTs <= today && inv.totalReceived >= inv.dailyPayout * (i + 1);
+        const isNext = !isPaid && payoutTs > today && (i === 0 || inv.startTs + i * 86400000 <= today);
+        const date = new Date(payoutTs);
+        return { day: i + 1, date, payoutTs, isPaid, isNext };
+    });
+
+    const paidCount = rows.filter(r => r.isPaid).length;
+    const totalExpected = inv.dailyPayout * totalDays;
+
+    return (
+        <div className="mt-6 rounded-xl border border-white/[0.07] bg-white/[0.02] overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
+                <div className="flex items-center gap-2">
+                    <CalendarClock size={14} className="text-[#a3e635]" />
+                    <span className="text-xs font-bold text-white">Payout Schedule</span>
+                </div>
+                <div className="flex items-center gap-3 text-[10px] text-gray-500">
+                    <span><span className="text-[#a3e635] font-bold">{paidCount}</span>/{totalDays} paid</span>
+                    <span>Total: <span className="text-white font-bold">{formatCurrency(totalExpected, currency)}</span></span>
+                </div>
+            </div>
+
+            {/* Scrollable rows */}
+            <div className="max-h-52 overflow-y-auto divide-y divide-white/[0.04]">
+                {rows.map(({ day, date, isPaid, isNext }) => (
+                    <div
+                        key={day}
+                        className={`flex items-center justify-between px-4 py-2.5 transition-colors ${
+                            isNext ? 'bg-[#a3e635]/5' : ''
+                        }`}
+                    >
+                        <div className="flex items-center gap-3">
+                            {isPaid ? (
+                                <CheckCircle2 size={14} className="text-[#a3e635] flex-shrink-0" />
+                            ) : isNext ? (
+                                <CircleDot size={14} className="text-yellow-400 flex-shrink-0 animate-pulse" />
+                            ) : (
+                                <Clock size={14} className="text-gray-700 flex-shrink-0" />
+                            )}
+                            <div>
+                                <span className="text-xs font-bold text-white">Day {day}</span>
+                                <span className="text-[10px] text-gray-600 ml-2">
+                                    {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <span className={`text-xs font-bold ${
+                                isPaid ? 'text-[#a3e635]' : isNext ? 'text-yellow-400' : 'text-gray-600'
+                            }`}>
+                                {isPaid ? '+' : ''}{formatCurrency(inv.dailyPayout, currency)}
+                            </span>
+                            <span className={`ml-2 text-[10px] font-bold uppercase ${
+                                isPaid ? 'text-[#a3e635]/60' : isNext ? 'text-yellow-400/70' : 'text-gray-700'
+                            }`}>
+                                {isPaid ? 'Paid' : isNext ? 'Next' : 'Pending'}
+                            </span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const InvestmentsPage = () => {
     const navigate = useNavigate();
@@ -37,26 +179,24 @@ const InvestmentsPage = () => {
             const response = await investmentService.getMyInvestments();
             if (response.success) {
                 const formatted = response.data.map(inv => {
-                    const planDuration = inv.plan?.durationDays || 30; // Fallback
+                    const planDuration = inv.plan?.durationDays || 30;
                     const planName = inv.plan?.name || 'Archived Plan';
-
-                    const totalExpected = inv.dailyPayoutAmount * planDuration; // Approx total payout
-                    const progress = totalExpected > 0
-                        ? (Math.min(100, Math.round((inv.totalPayoutReceived / totalExpected) * 100)) || 0)
-                        : 0;
+                    console.log('[inv]', inv._id, 'dailyPayoutAmount:', inv.dailyPayoutAmount, 'plan.durationDays:', inv.plan?.durationDays);
 
                     return {
                         id: inv._id,
                         planName: planName,
                         amount: inv.amount,
                         dailyPayout: inv.dailyPayoutAmount,
-                        totalReceived: inv.totalPayoutReceived,
+                        totalReceived: inv.totalPayoutReceived || 0,
                         nextPayout: new Date(inv.nextPayoutDate).toLocaleDateString(),
                         status: inv.status,
                         startDate: new Date(inv.startDate).toLocaleDateString(),
                         endDate: new Date(inv.endDate).toLocaleDateString(),
-                        progress: progress,
-                        color: '#a3e635', // default accent
+                        startTs: new Date(inv.startDate).getTime(),
+                        endTs: new Date(inv.endDate).getTime(),
+                        totalDays: planDuration,
+                        color: '#a3e635',
                         duration: `${planDuration} Days`
                     };
                 });
@@ -105,15 +245,21 @@ const InvestmentsPage = () => {
     const calculateTotals = () => {
         const invested = investments.reduce((sum, inv) => sum + inv.amount, 0);
         const received = investments.reduce((sum, inv) => sum + inv.totalReceived, 0);
+        const expectedTotal = investments.reduce((sum, inv) => {
+            const days = inv.totalDays || Math.ceil((inv.endTs - inv.startTs) / 86400000) || 0;
+            const daily = inv.dailyPayout || 0;
+            return sum + (daily * days);
+        }, 0);
 
         return {
             totalInvested: formatCurrency(invested, currency),
             totalReceived: formatCurrency(received, currency),
+            expectedTotal: formatCurrency(expectedTotal, currency),
             activeCount: investments.filter(i => i.status === 'active').length
         };
     };
 
-    const { totalInvested, totalReceived, activeCount } = calculateTotals();
+    const { totalInvested, totalReceived, expectedTotal, activeCount } = calculateTotals();
 
     const handleInvestmentSuccess = () => {
         addToast('Investment successful!', 'success');
@@ -146,7 +292,7 @@ const InvestmentsPage = () => {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
                     <span className="text-gray-400 text-xs font-medium">Total Invested</span>
                     <div className="text-3xl font-bold text-white mt-1">{totalInvested}</div>
@@ -158,6 +304,11 @@ const InvestmentsPage = () => {
                 <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
                     <span className="text-gray-400 text-xs font-medium">Active Portfolios</span>
                     <div className="text-3xl font-bold text-white mt-1">{activeCount}</div>
+                </div>
+                <div className="p-6 rounded-2xl border backdrop-blur-md" style={{ background: 'rgba(163,230,53,0.06)', borderColor: 'rgba(163,230,53,0.25)' }}>
+                    <span className="text-gray-400 text-xs font-medium">Expected Total Payout</span>
+                    <div className="text-3xl font-bold text-[#a3e635] mt-1">{expectedTotal}</div>
+                    <p className="text-[10px] text-gray-600 mt-1">Across all investments</p>
                 </div>
             </div>
 
@@ -230,16 +381,11 @@ const InvestmentsPage = () => {
                             </div>
                         </div>
 
-                        {/* Progress Bar */}
-                        <div className="mt-6">
-                            <div className="flex justify-between text-xs text-gray-500 mb-2">
-                                <span>Progress</span>
-                                <span>{inv.progress}%</span>
-                            </div>
-                            <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                <div className="h-full bg-[#a3e635] transition-all duration-1000" style={{ width: `${inv.progress}%` }}></div>
-                            </div>
-                        </div>
+                        {/* Day-by-Day Progress */}
+                        <DayProgress startDate={inv.startTs} endDate={inv.endTs} />
+
+                        {/* Payout Schedule */}
+                        <PayoutSchedule inv={inv} currency={currency} />
                     </div>
                 ))}
 
