@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Bell, TrendingUp, DollarSign, AlertCircle, CheckCircle, Check } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { useNotifications } from '../context';
+import { useNotifications } from '../context/NotificationContext';
 import { theme } from '../theme';
 
 const NotificationsPage = () => {

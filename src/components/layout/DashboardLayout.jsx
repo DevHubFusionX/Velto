@@ -4,7 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { theme } from '../../theme';
 import Sidebar from '../dashboard/Sidebar';
 import MarketTicker from '../dashboard/MarketTicker';
-import { useSearch, useNotifications } from '../../context';
+import { useSearch } from '../../context';
+import { useNotifications } from '../../context/NotificationContext';
 
 const DashboardLayout = ({ children, activeItem }) => {
     const navigate = useNavigate();
