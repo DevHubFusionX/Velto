@@ -56,7 +56,7 @@ const FAQ = () => {
                                             </svg>
                                         </div>
                                         <h3 className="text-2xl font-bold text-white mb-3">Still have questions?</h3>
-                                        <p className="text-gray-400 mb-6">Our support team is here to help 24/7</p>
+                                        <p className="text-gray-400 mb-6">Our support team is available 24/7 to help you</p>
                                         <button className="px-6 py-3 rounded-full bg-gradient-to-r from-[#a3e635] to-[#84cc16] text-[#0a1f0a] font-semibold hover:scale-105 transition-transform shadow-[0_0_20px_rgba(163,230,53,0.4)]">
                                             Contact Support
                                         </button>

@@ -1,46 +1,45 @@
 export const navLinks = [
-    { name: "Features", href: "#features" },
-    { name: "Solutions", href: "#solutions" },
-    { name: "Customers", href: "#customers" },
-    { name: "Resources", href: "#resources" },
-    { name: "Pricing", href: "#pricing" },
+    { name: "How It Works", href: "#how-it-works" },
+    { name: "Benefits", href: "#benefits" },
+    { name: "Stats", href: "#stats" },
+    { name: "FAQ", href: "#faq" },
 ];
 
 export const heroData = {
-    headline: "Grow Your Wealth with Confidence & Trust",
+    headline: "Grow Your Wealth with Daily Returns",
     subheadline:
-        "Experience the highest standard of security and value for your investments. We provide a fortress for your financial future, ensuring consistent growth and unwavering protection.",
+        "Invest in flexible plans and earn daily payouts directly to your wallet. Transparent, secure, and built for serious investors.",
     ctaPrimary: "Start Investing",
     ctaSecondary: "View Plans",
-    trustedText: "Trusted by investors and companies worldwide",
+    trustedText: "Trusted by investors worldwide",
 };
 
 export const howItWorksData = [
     {
         id: 1,
         title: "Create an Account",
-        description: "Sign up in seconds and verify your identity securely. We use bank-level encryption to keep your data safe.",
+        description: "Sign up in under 2 minutes. Verify your email and set up your secure profile to get started.",
         icon: "UserPlus",
         tip: "Takes less than 2 minutes!"
     },
     {
         id: 2,
-        title: "Link Your Bank",
-        description: "Connect your funding source instantly using Plaid. We support over 3,000 financial institutions globally.",
+        title: "Deposit via Crypto",
+        description: "Fund your account using USDT, BTC, ETH and more. Deposits are confirmed on-chain and credited instantly.",
         icon: "CreditCard",
-        tip: "Zero fees on deposits."
+        tip: "Zero deposit fees."
     },
     {
         id: 3,
-        title: "Choose Your Plan",
-        description: "Select an investment strategy that matches your goals. Whether conservative or aggressive, we have a plan for you.",
+        title: "Choose an Investment Plan",
+        description: "Pick a plan that matches your goals. Each plan has a fixed duration and a clear daily return — no surprises.",
         icon: "TrendingUp",
-        tip: "AI-driven recommendations available."
+        tip: "Plans start from $5."
     },
     {
         id: 4,
-        title: "Watch It Grow",
-        description: "Track your portfolio in real-time. Our automated rebalancing ensures your money is always working hard.",
+        title: "Earn Daily Payouts",
+        description: "Returns are credited to your wallet every day. Track every payout in real-time from your dashboard.",
         icon: "PieChart",
         tip: "Daily performance updates."
     },
@@ -50,7 +49,7 @@ export const statsData = [
     {
         id: 1,
         value: "$10M+",
-        label: "Invested Safely",
+        label: "Total Invested",
         icon: "DollarSign"
     },
     {
@@ -68,7 +67,7 @@ export const statsData = [
     {
         id: 4,
         value: "24/7",
-        label: "Customer Support",
+        label: "Support Available",
         icon: "HeadphonesIcon"
     },
 ];
@@ -76,30 +75,30 @@ export const statsData = [
 export const benefitsData = [
     {
         id: 1,
-        title: "Bank-Level Security",
-        description: "Your investments are protected with 256-bit encryption and multi-factor authentication. We never compromise on security.",
-        icon: "Shield",
+        title: "Daily Payouts, Every Day",
+        description: "Your returns are credited to your balance every single day — no waiting, no lock-up surprises. Watch your portfolio grow in real time.",
+        icon: "Zap",
         color: "#a3e635"
     },
     {
         id: 2,
-        title: "High Returns",
-        description: "Our AI-driven portfolio management consistently outperforms traditional investment methods with an average 12% annual return.",
-        icon: "TrendingUp",
+        title: "Transparent Plans",
+        description: "Every investment plan shows you exactly what you'll earn — daily rate, duration, and total projected return — before you commit a single dollar.",
+        icon: "Eye",
         color: "#84cc16"
     },
     {
         id: 3,
-        title: "Full Transparency",
-        description: "Track every transaction in real-time. No hidden fees, no surprises. You're always in control of your money.",
-        icon: "Eye",
+        title: "Crypto-Powered Deposits",
+        description: "Deposit using USDT, BTC, ETH and other major cryptocurrencies. Fast on-chain confirmation with zero deposit fees.",
+        icon: "TrendingUp",
         color: "#65a30d"
     },
     {
         id: 4,
-        title: "Instant Withdrawals",
-        description: "Access your funds anytime. Withdrawals are processed instantly with zero delays or penalties.",
-        icon: "Zap",
+        title: "Bank-Level Security",
+        description: "Your account is protected with 256-bit encryption, two-factor authentication, and session management. Your funds are always safe.",
+        icon: "Shield",
         color: "#a3e635"
     },
 ];
@@ -108,8 +107,8 @@ export const testimonialsData = [
     {
         id: 1,
         name: "Sarah Mitchell",
-        role: "Portfolio Manager",
-        quote: "The platform's security and transparency gave me the confidence to invest. Returns have been consistently strong!",
+        role: "Full-time Investor",
+        quote: "The daily payouts are real. I've been investing for 3 months and my returns hit my wallet every single morning without fail.",
         rating: 5,
         initials: "SM",
         color: "#a3e635"
@@ -117,8 +116,8 @@ export const testimonialsData = [
     {
         id: 2,
         name: "James Chen",
-        role: "Tech Entrepreneur",
-        quote: "Fast, secure, and reliable. The AI-driven recommendations helped me grow my portfolio by 18% in just 6 months.",
+        role: "Crypto Trader",
+        quote: "Finally a platform that's upfront about what you earn. The payout schedule on each investment is exactly what they promised.",
         rating: 5,
         initials: "JC",
         color: "#84cc16"
@@ -127,7 +126,7 @@ export const testimonialsData = [
         id: 3,
         name: "Emily Rodriguez",
         role: "Financial Advisor",
-        quote: "I recommend this platform to all my clients. The instant withdrawals and zero hidden fees make it stand out.",
+        quote: "I recommend Velto to clients who want predictable daily returns. The transparency and on-time payouts set it apart.",
         rating: 5,
         initials: "ER",
         color: "#65a30d"
@@ -136,7 +135,7 @@ export const testimonialsData = [
         id: 4,
         name: "Michael Thompson",
         role: "Small Business Owner",
-        quote: "Bank-level security with better returns than traditional banks. It's a no-brainer for anyone serious about investing.",
+        quote: "Depositing with crypto was seamless. Within minutes my balance was funded and I had an active investment earning daily.",
         rating: 5,
         initials: "MT",
         color: "#a3e635"
@@ -144,8 +143,8 @@ export const testimonialsData = [
     {
         id: 5,
         name: "Lisa Park",
-        role: "Marketing Director",
-        quote: "The customer support is exceptional. 24/7 availability and they actually solve problems quickly.",
+        role: "Remote Worker",
+        quote: "The support team is responsive and the dashboard makes it easy to track every payout. Exactly what I was looking for.",
         rating: 5,
         initials: "LP",
         color: "#84cc16"
@@ -154,7 +153,7 @@ export const testimonialsData = [
         id: 6,
         name: "David Kumar",
         role: "Software Engineer",
-        quote: "Clean interface, powerful features. The real-time tracking keeps me informed without being overwhelming.",
+        quote: "Clean interface, real-time payout tracking, and no hidden fees. Velto is the most honest investment platform I've used.",
         rating: 5,
         initials: "DK",
         color: "#65a30d"
@@ -172,33 +171,33 @@ export const mediaLogos = [
 export const metricsData = [
     {
         id: 1,
-        value: "24%",
-        label: "Average Annual ROI",
-        description: "Consistent returns year over year",
+        value: "Daily",
+        label: "Payout Frequency",
+        description: "Returns credited to your wallet every 24 hours, automatically",
         icon: "TrendingUp",
         color: "#a3e635"
     },
     {
         id: 2,
-        value: "350%",
-        label: "User Growth (2024)",
-        description: "Fastest growing investment platform",
+        value: "1,200+",
+        label: "Active Investors",
+        description: "Growing community of investors earning daily returns",
         icon: "Users",
         color: "#84cc16"
     },
     {
         id: 3,
-        value: "$50M+",
-        label: "Assets Under Management",
-        description: "Trusted with billions in investments",
+        value: "$10M+",
+        label: "Total Invested",
+        description: "Capital deployed across all active investment plans",
         icon: "DollarSign",
         color: "#65a30d"
     },
     {
         id: 4,
         value: "99.9%",
-        label: "Platform Uptime",
-        description: "Always available when you need us",
+        label: "Payout Reliability",
+        description: "On-time daily payouts since platform launch",
         icon: "Shield",
         color: "#a3e635"
     },
@@ -208,32 +207,32 @@ export const faqData = [
     {
         id: 1,
         question: "How do I get started?",
-        answer: "Getting started is simple! Create an account in under 2 minutes, verify your identity, link your bank account, and choose an investment plan that matches your goals. Our AI will guide you through the entire process."
+        answer: "Create an account in under 2 minutes, verify your email, deposit funds using cryptocurrency, and choose an investment plan. Your first daily payout will arrive within 24 hours of your investment going active."
     },
     {
         id: 2,
-        question: "What are the fees?",
-        answer: "We believe in transparency. There are zero deposit fees, zero withdrawal fees, and our management fee is just 0.5% annually - one of the lowest in the industry. No hidden charges, ever."
+        question: "What deposit methods are supported?",
+        answer: "We support crypto deposits including USDT (TRC20/ERC20), Bitcoin, Ethereum, and other major cryptocurrencies. All deposits are confirmed on-chain and credited to your balance automatically."
     },
     {
         id: 3,
-        question: "How quickly can I withdraw my money?",
-        answer: "Instant withdrawals are available 24/7. Your funds will be transferred to your linked bank account immediately with no delays or penalties. You're always in control of your money."
+        question: "How do daily payouts work?",
+        answer: "Once your investment is active, your daily return is automatically credited to your Velto balance every 24 hours. You can track each payout day-by-day from your investments dashboard."
     },
     {
         id: 4,
-        question: "Is my investment secure?",
-        answer: "Absolutely. We use bank-level 256-bit encryption, multi-factor authentication, and cold storage for digital assets. Your investments are also FDIC insured up to $250,000 and we're regulated by the SEC."
+        question: "Can I withdraw my earnings?",
+        answer: "Yes. Your daily returns are credited to your balance and can be withdrawn at any time via crypto. Withdrawal requests are processed and sent to your wallet address."
     },
     {
         id: 5,
-        question: "What's the minimum investment amount?",
-        answer: "You can start investing with as little as $10. We believe everyone should have access to quality investment opportunities, regardless of their starting capital."
+        question: "What is the minimum investment?",
+        answer: "Investment minimums vary by plan. Some plans start as low as $5, making it accessible for everyone. Each plan clearly shows the minimum and maximum investment before you commit."
     },
     {
         id: 6,
-        question: "Can I change my investment plan?",
-        answer: "Yes! You can switch between plans at any time with no penalties. Our AI will help you rebalance your portfolio to match your new strategy seamlessly."
+        question: "What happens when my plan ends?",
+        answer: "When your investment plan reaches its end date, it is marked as completed. All earned returns will have been credited daily throughout the plan duration. You can then reinvest or withdraw your balance."
     },
 ];
 
@@ -245,10 +244,10 @@ export const footerLinks = {
         { name: "Blog", href: "#blog" },
     ],
     product: [
-        { name: "Features", href: "#features" },
-        { name: "Pricing", href: "#pricing" },
+        { name: "Investment Plans", href: "#plans" },
+        { name: "How It Works", href: "#how-it-works" },
         { name: "Security", href: "#security" },
-        { name: "Roadmap", href: "#roadmap" },
+        { name: "Referral Program", href: "#referrals" },
     ],
     legal: [
         { name: "Privacy Policy", href: "#privacy" },
@@ -257,9 +256,9 @@ export const footerLinks = {
         { name: "Disclosures", href: "#disclosures" },
     ],
     support: [
-        { name: "Help Center", href: "#help" },
+        { name: "Help Center", href: "/help" },
         { name: "Contact Us", href: "#contact" },
-        { name: "API Docs", href: "#api" },
+        { name: "Community", href: "/community" },
         { name: "Status", href: "#status" },
     ],
 };
